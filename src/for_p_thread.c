@@ -1,5 +1,6 @@
 #include <pthread.h>
 #include <unistd.h>
+#include <stdbool.h>
 // This one is for looking up error IDs.
 // #include <errno.h>
 // Go through to <errno-base.h>
@@ -20,13 +21,16 @@ int for_p_thread_get_pthread_mutex_t_width()
 
 //* Getting the number of available threads.
 //* You can thank tavianator: https://www.reddit.com/r/C_Programming/comments/6zxnr1/comment/dmzuwt6
-int for_p_thread_get_cpu_threads()
+int for_p_thread_get_cpu_threads(bool leave_room_for_main)
 {
   int thread_count = sysconf(_SC_NPROCESSORS_ONLN);
-  thread_count = thread_count - 1;
-  if (thread_count == 0)
+  if (leave_room_for_main)
   {
-    thread_count = 1;
+    thread_count = thread_count - 1;
+    if (thread_count == 0)
+    {
+      thread_count = 1;
+    }
   }
   return thread_count;
 }
