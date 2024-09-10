@@ -182,4 +182,7 @@ program thread_example
   end do
 
 
+  todo: needs shell allocation
+
+
 end program thread_example
