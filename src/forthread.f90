@@ -149,12 +149,15 @@ contains
 
 
   !* Fire up the module.
-  subroutine thread_initialize()
+  !* If [leave_room_for_main] is .true. it will allocate [CPU_THREADS - 1] worker threads
+  !* into the thread pool state machine.
+  subroutine thread_initialize(leave_room_for_main)
     implicit none
 
+    logical, intent(in), value :: leave_room_for_main
     integer(c_int) :: i
 
-    CPU_THREADS = for_p_thread_get_cpu_threads()
+    CPU_THREADS = for_p_thread_get_cpu_threads(logical(leave_room_for_main, kind = c_bool))
 
     allocate(module_mutex)
     module_mutex => thread_create_mutex_pointer()
