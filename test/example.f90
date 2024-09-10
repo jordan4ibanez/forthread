@@ -17,6 +17,12 @@ module an_example_thread_module
   end type thread_data_in_example
 
 
+  !* This is our data that will be sent from threads into main.
+  type :: thread_data_out_example
+    integer(c_int) :: value
+  end type thread_data_out_example
+
+
 contains
 
   !* You must format your function like this or else it might blow up.
@@ -34,6 +40,9 @@ contains
     !* This is our baseline to how this is laid out.
     !* We have the thread library's mutex, and the actual data. (if any was sent)
     type(thread_argument), pointer :: argument_pointer
+
+    !* This is the message we will be sending back.
+    type(thread_data_out_example), pointer :: output
 
     !* Status is basically if we want to look at the result of mutex locking.
     !* (You'll see this later.)
@@ -58,11 +67,11 @@ contains
     !* Let's grab that data from the c_ptr.
 
     ! We really need that data, it cannot be null.
-    if (.not. c_associated(argument_pointer%sent_data)) then
+    if (.not. c_associated(argument_pointer%data)) then
       error stop "[Thread worker thing] Error: The sent data was null!"
     end if
 
-    call c_f_pointer(argument_pointer%sent_data, some_cool_data)
+    call c_f_pointer(argument_pointer%data, some_cool_data)
 
 
     !* And now we have it. 8)
@@ -72,8 +81,13 @@ contains
 
 
     !* Well, we also got sent in that pointer, let's output some data to it.
+    !? Also, very important note:
+    !* This is the concurrent FILO queue. You must ensure that your data you push into it
+    !* is a pointer or else it will be extremely undefined behavior.
 
-    call some_cool_data%output%push(queue_data(some_cool_data%a_number))
+    allocate(output)
+    output%value = some_cool_data%a_number
+    call some_cool_data%output%push(output)
 
 
     !* You must remember: We are working in manual memory management.
@@ -141,7 +155,7 @@ program thread_example
   do
 
     !* Don't have 128 cpu cores? No problem! That's why we have RAM. 8)
-    do i = 1,100000
+    do i = 1,2
 
       !* Reallocate the pointer every loop.
       allocate(sending_data)
@@ -156,33 +170,31 @@ program thread_example
 
       !* I've included a method for you to wait for a huge job to finish. :)
 
+
       ! Churn through the queue.
       do while(.not. thread_queue_is_empty())
         call thread_process_thread_queue()
       end do
+
+
+      ! Spin while we await all the threads to finish.
+      do while (thread_await_all_thread_completion())
+      end do
+
+
+      !* Let's grab that data that the threads output!
+      do while(output_queue%pop(generic_pointer))
+        select type(generic_pointer)
+         type is (integer(c_int))
+          print*,generic_pointer
+         class default
+          ! Don't forget to deallocate. 8)
+          deallocate(generic_pointer)
+        end select
+      end do
+
     end do
-
-
-    ! Spin while we await all the threads to finish.
-    do while (.not. thread_await_all_thread_completion())
-    end do
-
-
-    !* Let's grab that data that the threads output!
-    do while(output_queue%pop(generic_pointer))
-      select type(generic_pointer)
-       type is (integer(c_int))
-        print*,generic_pointer
-      end select
-
-      ! Don't forget to deallocate. 8)
-      deallocate(generic_pointer)
-    end do
-
   end do
-
-
-  todo: needs shell allocation
 
 
 end program thread_example

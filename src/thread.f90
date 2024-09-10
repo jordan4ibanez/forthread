@@ -67,7 +67,6 @@ module thread
   public :: thread_queue_element
   public :: mutex_rwlock
   public :: concurrent_linked_filo_queue
-  public :: queue_data
 
   public :: thread_write_lock
   public :: thread_read_lock
@@ -237,7 +236,7 @@ contains
     new_element%subroutine_pointer = subroutine_procedure_pointer
     new_element%data_to_send = argument_pointer
 
-    call master_thread_queue%push(queue_data(new_element))
+    call master_thread_queue%push(new_element)
   end subroutine thread_create
 
 
@@ -293,18 +292,19 @@ contains
 
         ! Set the raw data to send.
         thread_arguments(thread_to_use)%active_flag => thread_active(thread_to_use)
-        thread_arguments(thread_to_use)%sent_data = new_element%data_to_send
+        thread_arguments(thread_to_use)%data = new_element%data_to_send
 
         function_pointer = new_element%subroutine_pointer
 
         ! Now clean up the shell.
         deallocate(new_element)
 
-        ! Fire off the thread.
+        ! Clean up old thread data.
         if (available_threads(thread_to_use)%tid /= 0) then
           call thread_join(available_threads(thread_to_use), c_null_ptr)
         end if
 
+        ! Fire off the thread.
         available_threads(thread_to_use) = create_joinable(function_pointer, c_loc(thread_arguments(thread_to_use)))
       else
         ! Nothing left to get.
@@ -348,15 +348,16 @@ contains
 
 
   !* And the end of the program, wait for all threads to complete until continuing.
-  function thread_await_all_thread_completion() result(still_processing)
+  function thread_await_all_thread_completion() result(keep_going)
     implicit none
 
-    logical(c_bool) :: still_processing
+    logical(c_bool) :: keep_going
     integer(c_int) :: i, status
 
-    still_processing = .true.
+    keep_going = .true.
 
     status = thread_read_lock(c_loc(module_mutex))
+
     do i = 1,CPU_THREADS
       if (thread_active(i)) then
         status = thread_unlock_lock(c_loc(module_mutex))
@@ -365,7 +366,7 @@ contains
     end do
     status = thread_unlock_lock(c_loc(module_mutex))
 
-    still_processing = .false.
+    keep_going = .false.
   end function thread_await_all_thread_completion
 
 
