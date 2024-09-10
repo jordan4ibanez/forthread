@@ -155,8 +155,9 @@ program thread_example
   do
 
     !* Don't have 1024 cpu cores? No problem! That's why we have RAM. 8)
+    !! An extremely important note:
     !* If you create too many threads in one shot, the Linux arena heap will start
-    !* to go insane and use a lot of memory for no reason!
+    !* to go insane and use a lot of memory!
     do i = 1,1024
 
       !* Reallocate the pointer every loop.
