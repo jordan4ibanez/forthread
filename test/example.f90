@@ -137,48 +137,49 @@ program thread_example
   !* Initialize the output queue.
   output_queue = concurrent_linked_filo_queue()
 
+  !* We'll make this an infinite loop because that's cool.
+  do
 
-  !* Don't have 128 cpu cores? No problem! That's why we have RAM. 8)
-  do i = 1,1000000
+    !* Don't have 128 cpu cores? No problem! That's why we have RAM. 8)
+    do i = 1,100000
 
-    !* Reallocate the pointer every loop.
-    allocate(sending_data)
-    sending_data%a_number = i
-    sending_data%a_string = "hi!"
-    ! Yes, this is quite pointy.
-    sending_data%output => output_queue
+      !* Reallocate the pointer every loop.
+      allocate(sending_data)
+      sending_data%a_number = i
+      sending_data%a_string = "hi!"
+      ! Yes, this is quite pointy.
+      sending_data%output => output_queue
 
-    !* Remember, we are binding to a C library. We must abide by C's rules.
-    call thread_create(c_funloc(thread_worker_thing), c_loc(sending_data))
+      !* Remember, we are binding to a C library. We must abide by C's rules.
+      call thread_create(c_funloc(thread_worker_thing), c_loc(sending_data))
 
 
-    !* I've included a method for you to wait for a huge job to finish. :)
+      !* I've included a method for you to wait for a huge job to finish. :)
 
-    ! Churn through the queue.
-    do while(.not. thread_queue_is_empty())
-      call thread_process_thread_queue()
+      ! Churn through the queue.
+      do while(.not. thread_queue_is_empty())
+        call thread_process_thread_queue()
+      end do
     end do
+
+
+    ! Spin while we await all the threads to finish.
+    do while (.not. thread_await_all_thread_completion())
+    end do
+
+
+    !* Let's grab that data that the threads output!
+    do while(output_queue%pop(generic_pointer))
+      select type(generic_pointer)
+       type is (integer(c_int))
+        print*,generic_pointer
+      end select
+
+      ! Don't forget to deallocate. 8)
+      deallocate(generic_pointer)
+    end do
+
   end do
-
-
-  ! Spin while we await all the threads to finish.
-  do while (.not. thread_await_all_thread_completion())
-  end do
-
-
-  !* Let's grab that data that the threads output!
-  do while(output_queue%pop(generic_pointer))
-    select type(generic_pointer)
-     type is (integer(c_int))
-      print*,generic_pointer
-    end select
-
-    ! Don't forget to deallocate. 8)
-    deallocate(generic_pointer)
-  end do
-
-
-  call sleep(5)
 
 
 end program thread_example
