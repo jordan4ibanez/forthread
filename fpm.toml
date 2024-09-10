@@ -2,7 +2,7 @@ name = "forthread"
 version = "1.0.0"
 license = "MIT"
 author = "jordan4ibanez"
-maintainer = "jordan4ibanez@users.noreply.github.com"
+maintainer = "jordan4ibanez"
 copyright = "Copyright 2024, jordan4ibanez"
 categories = ["multithreading"]
 
