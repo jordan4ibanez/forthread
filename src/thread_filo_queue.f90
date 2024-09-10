@@ -70,19 +70,6 @@ module thread_filo_queue
   end interface concurrent_linked_filo_queue
 
 
-  interface
-
-    subroutine malloc_trim(i) bind(c, name = "malloc_trim")
-      use, intrinsic :: iso_c_binding
-      implicit none
-
-      integer(c_int), intent(in), value :: i
-    end subroutine malloc_trim
-
-
-  end interface
-
-
 contains
 
 
@@ -195,8 +182,6 @@ contains
     if (.not. associated(this%head)) then
       this%tail => null()
     end if
-
-    call malloc_trim(0)
 
     !! END SAFE OPERATION.
     status = thread_unlock_lock(this%c_mutex_pointer)

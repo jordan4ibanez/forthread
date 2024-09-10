@@ -1,6 +1,6 @@
 name = "forthread"
-version = "0.1.0"
-license = "license"
+version = "1.0.0"
+license = "MIT"
 author = "jordan4ibanez"
 maintainer = "jordan4ibanez@users.noreply.github.com"
 copyright = "Copyright 2024, jordan4ibanez"
