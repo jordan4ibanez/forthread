@@ -9,3 +9,5 @@ It comes with two useful components:
 - A concurrent FILO linked queue.
 
 [Please see the tutorial](https://github.com/jordan4ibanez/forthread/blob/master/test/example.f90)
+
+Like what I do? [My Patreon](https://www.patreon.com/jordan4ibanez)
