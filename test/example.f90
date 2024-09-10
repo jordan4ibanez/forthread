@@ -154,8 +154,10 @@ program thread_example
   !* We'll make this an infinite loop because that's cool.
   do
 
-    !* Don't have 128 cpu cores? No problem! That's why we have RAM. 8)
-    do i = 1,2
+    !* Don't have 1024 cpu cores? No problem! That's why we have RAM. 8)
+    !* If you create too many threads in one shot, the Linux arena heap will start
+    !* to go insane and use a lot of memory for no reason!
+    do i = 1,1024
 
       !* Reallocate the pointer every loop.
       allocate(sending_data)
@@ -166,34 +168,33 @@ program thread_example
 
       !* Remember, we are binding to a C library. We must abide by C's rules.
       call thread_create(c_funloc(thread_worker_thing), c_loc(sending_data))
-
-
-      !* I've included a method for you to wait for a huge job to finish. :)
-
-
-      ! Churn through the queue.
-      do while(.not. thread_queue_is_empty())
-        call thread_process_thread_queue()
-      end do
-
-
-      ! Spin while we await all the threads to finish.
-      do while (thread_await_all_thread_completion())
-      end do
-
-
-      !* Let's grab that data that the threads output!
-      do while(output_queue%pop(generic_pointer))
-        select type(generic_pointer)
-         type is (integer(c_int))
-          print*,generic_pointer
-         class default
-          ! Don't forget to deallocate. 8)
-          deallocate(generic_pointer)
-        end select
-      end do
-
     end do
+
+    !* I've included a method for you to wait for a huge job to finish. :)
+
+
+    ! Churn through the queue.
+    do while(.not. thread_queue_is_empty())
+      call thread_process_thread_queue()
+    end do
+
+
+    ! Spin while we await all the threads to finish.
+    do while (thread_await_all_thread_completion())
+    end do
+
+
+    !* Let's grab that data that the threads output!
+    do while(output_queue%pop(generic_pointer))
+      select type(generic_pointer)
+       type is (integer(c_int))
+        print*,generic_pointer
+       class default
+        ! Don't forget to deallocate. 8)
+        deallocate(generic_pointer)
+      end select
+    end do
+
   end do
 
 
