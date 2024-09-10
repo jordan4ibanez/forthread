@@ -1,16 +1,184 @@
-module a_thread_module
+!*
+!* A very simple example which shows off a pool dumping data into
+!* a concurrent FILO queue.
+!*
+module an_example_thread_module
   use, intrinsic :: iso_c_binding
   use :: thread
+  implicit none
 
-  type :: thread_data_example
+
+  !* This is our data that will be sent into the thread from main.
+  type :: thread_data_in_example
     integer(c_int) :: a_number
-  end type thread_data_example
+    character(len = :, kind = c_char), allocatable :: a_string
+    !* This one is a bit special, it'll make sense as you read.
+    type(concurrent_linked_filo_queue), pointer :: output
+  end type thread_data_in_example
 
 
-end module a_thread_module
+contains
+
+  !* You must format your function like this or else it might blow up.
+  recursive function thread_worker_thing(c_arg_pointer) result(void_pointer) bind(c)
+    implicit none
+
+    !* The thread library will pass in a very specific portion of memory in a simple layout.
+    !* It is binding to C, so we must shuffle some data around first.
+    type(c_ptr), intent(in), value :: c_arg_pointer
+
+    !* The void pointer is C's way of dynamic types. In this library, it has no use.
+    !* Just make it a c_null_ptr basically.
+    type(c_ptr) :: void_pointer
+
+    !* This is our baseline to how this is laid out.
+    !* We have the thread library's mutex, and the actual data. (if any was sent)
+    type(thread_argument), pointer :: argument_pointer
+
+    !* Status is basically if we want to look at the result of mutex locking.
+    !* (You'll see this later.)
+    integer(c_int) :: status
+
+    !* This is the data we expect to get in this thread.
+    type(thread_data_in_example), pointer :: some_cool_data
+
+
+    !* I suppose we will get into this now.
+
+    ! Check association. If this is null, something has gone horribly wrong.
+    if (.not. c_associated(c_arg_pointer)) then
+      error stop "[Thread worker thing] Error: c_arg_pointer was null."
+    end if
+
+    ! Transfer the data into Fortran.
+    call c_f_pointer(c_arg_pointer, argument_pointer)
+
+
+    !* Now we have our thread module mutex and the pointer to the data!
+    !* Let's grab that data from the c_ptr.
+
+    ! We really need that data, it cannot be null.
+    if (.not. c_associated(argument_pointer%sent_data)) then
+      error stop "[Thread worker thing] Error: The sent data was null!"
+    end if
+
+    call c_f_pointer(argument_pointer%sent_data, some_cool_data)
+
+
+    !* And now we have it. 8)
+    !* So let's print it out.
+
+    print*,"hello from thread", some_cool_data%a_number, "the string is: "//some_cool_data%a_string
+
+
+    !* Well, we also got sent in that pointer, let's output some data to it.
+
+    call some_cool_data%output%push(queue_data(some_cool_data%a_number))
+
+
+    !* You must remember: We are working in manual memory management.
+    !* In this specific scenario, all we have to do is free the cool data.
+    !* But it might get much more complex depending on what you're doing.
+
+    deallocate(some_cool_data)
+
+
+    !* Remember that void pointer?
+
+    void_pointer = c_null_ptr
+
+
+    !* Now, for the finale.
+    !* This part is extremely important, do it in this order.
+    !* You will be talking straight to the library during this.
+
+    !* Lock the master mutex.
+    status = thread_write_lock(argument_pointer%mutex_pointer)
+
+    !* This is a pointer into the thread library to say: "this thread finished"
+    argument_pointer%active_flag = .false.
+
+    !* Finally, unlock the mutex.
+    status = thread_unlock_lock(argument_pointer%mutex_pointer)
+
+    !* This thread has completed. :)
+  end function thread_worker_thing
+
+
+end module an_example_thread_module
 
 program thread_example
   use, intrinsic :: iso_c_binding
+  use :: an_example_thread_module
+  use :: thread
   implicit none
+
+  integer(c_int) :: i
+  !* Remember to make this a pointer!
+  !* If you make it allocatable, I literally have no idea what the
+  !* Fortran runtime will do to it.
+  type(thread_data_in_example), pointer :: sending_data
+
+  !* We will create a concurrent FILO queue for the threads to output to.
+  type(concurrent_linked_filo_queue), target :: output_queue
+
+  !* You'll see this used later. 8)
+  class(*), pointer :: generic_pointer
+
+
+  !* The first step is very simple, you must initialize the library.
+  !* [leave_room_for_main], if .true. will have [CPU_THREADS - 1] workers.
+  !* This is specifically designed for games where you don't want the main thread
+  !* to become overburdened in the OS scheduler.
+  !* Since we are using pure calculations, use all available threads.
+  call thread_initialize(.false.)
+
+
+  !* Initialize the output queue.
+  output_queue = concurrent_linked_filo_queue()
+
+
+  !* Don't have 128 cpu cores? No problem! That's why we have RAM. 8)
+  do i = 1,1000000
+
+    !* Reallocate the pointer every loop.
+    allocate(sending_data)
+    sending_data%a_number = i
+    sending_data%a_string = "hi!"
+    ! Yes, this is quite pointy.
+    sending_data%output => output_queue
+
+    !* Remember, we are binding to a C library. We must abide by C's rules.
+    call thread_create(c_funloc(thread_worker_thing), c_loc(sending_data))
+
+
+    !* I've included a method for you to wait for a huge job to finish. :)
+
+    ! Churn through the queue.
+    do while(.not. thread_queue_is_empty())
+      call thread_process_thread_queue()
+    end do
+  end do
+
+
+  ! Spin while we await all the threads to finish.
+  do while (.not. thread_await_all_thread_completion())
+  end do
+
+
+  !* Let's grab that data that the threads output!
+  do while(output_queue%pop(generic_pointer))
+    select type(generic_pointer)
+     type is (integer(c_int))
+      print*,generic_pointer
+    end select
+
+    ! Don't forget to deallocate. 8)
+    deallocate(generic_pointer)
+  end do
+
+
+  call sleep(5)
+
 
 end program thread_example
