@@ -188,12 +188,20 @@ program thread_example
     !* Let's grab that data that the threads output!
     do while(output_queue%pop(generic_pointer))
       select type(generic_pointer)
+
        type is (integer(c_int))
-        print*,generic_pointer
+        error stop "WRONG"
+
+        type is (thread_data_out_example)
+          print*,generic_pointer%value
+
        class default
-        ! Don't forget to deallocate. 8)
-        deallocate(generic_pointer)
+        error stop "WRONG"
+
       end select
+
+      ! Don't forget to deallocate. 8)
+      deallocate(generic_pointer)
     end do
 
   end do
