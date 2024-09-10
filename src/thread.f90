@@ -314,9 +314,6 @@ contains
   end subroutine thread_process_thread_queue
 
 
-
-
-
   !* Simply searches for a free thread to dispatch.
   !* This is a very naive implementation.
   function find_free_thread() result(thread_index)
@@ -339,9 +336,6 @@ contains
   end function find_free_thread
 
 
-
-
-
   !* Check if the thread queue is empty.
   !* This is primarily used for debugging.
   function thread_queue_is_empty() result(is_empty)
@@ -351,7 +345,6 @@ contains
 
     is_empty = master_thread_queue%is_empty()
   end function thread_queue_is_empty
-
 
 
   !* And the end of the program, wait for all threads to complete until continuing.
@@ -367,7 +360,6 @@ contains
     do i = 1,CPU_THREADS
       if (thread_active(i)) then
         status = thread_unlock_lock(c_loc(module_mutex))
-        call sleep(0)
         return
       end if
     end do
