@@ -26,7 +26,6 @@ program test_array_queue
     select type(generic_pointer)
      type is(hi)
       print*, generic_pointer%data
-      ! deallocate(generic_pointer%data)
       deallocate(generic_pointer)
      class default
       error stop
