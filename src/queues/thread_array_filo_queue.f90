@@ -8,6 +8,9 @@ module thread_filo_queue_array
   private
 
 
+  public :: concurrent_array_filo_queue
+
+
   type :: queue_element
     class(*), pointer :: data => null()
   end type queue_element
@@ -60,7 +63,7 @@ contains
 
     this%items = this%items + 1
     allocate(new_data(this%items))
-    new_data = this%data
+    new_data = this%data(1:this%items)
     new_data(this%items)%data => generic_pointer
 
     call move_alloc(new_data, this%data)
