@@ -40,6 +40,7 @@ contains
 
     type(concurrent_array_filo_queue) :: new_queue
 
+    allocate(new_queue%data(0))
     new_queue%mutex => thread_create_mutex_pointer()
     new_queue%c_mutex_pointer = c_loc(new_queue%mutex)
   end function constructor_concurrent_array_filo_queue
@@ -77,7 +78,7 @@ contains
     class(*), intent(inout), pointer :: generic_pointer_option
     logical(c_bool) :: some
     integer(c_int) :: status
-    type(queue_node), pointer :: next_pointer
+    type(queue_element), dimension(:), allocatable :: new_data
 
     status = thread_write_lock(this%c_mutex_pointer)
     !! BEGIN SAFE OPERATION.
@@ -86,29 +87,18 @@ contains
 
     generic_pointer_option => null()
 
-    ! If we have a head, the output will become the head data.
-    ! The head will now be shifted forward, and the old head will be cleaned up.
-    if (associated(this%head)) then
-
-      some = .true.
-
-      next_pointer => this%head%next
-
-      ! First we unshell the data.
-      generic_pointer_option => this%head%data
-
-      ! Then we deallocate.
-      deallocate(this%head)
-
-      this%head => next_pointer
-
-      this%items = this%items - 1
+    if (this%items == 0) then
+      !? EARLY RETURN END SAFE OPERATION.
+      status = thread_unlock_lock(this%c_mutex_pointer)
+      return
     end if
 
-    !* If the head was pointed to null, we must nullify the tail.
-    if (.not. associated(this%head)) then
-      this%tail => null()
-    end if
+    generic_pointer_option => this%data(this%items)%data
+
+    this%items = this%items - 1
+    allocate(new_data(this%items))
+    new_data = this%data(1:this%items)
+    call move_alloc(new_data, this%data)
 
     !! END SAFE OPERATION.
     status = thread_unlock_lock(this%c_mutex_pointer)
@@ -121,35 +111,19 @@ contains
     implicit none
 
     class(concurrent_array_filo_queue), intent(inout) :: this
-    type(queue_node), pointer :: current, next
-    integer(c_int) :: status
+    integer(c_int) :: status, i
+    type(queue_element), dimension(:), allocatable :: new_data
 
     status = thread_write_lock(this%c_mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
-    if (associated(this%head)) then
-
-      current => this%head
-
-      do
-        next => current%next
-
-        deallocate(current)
-
-        ! Pointing at nothing.
-        if (.not. associated(next)) then
-          exit
-        end if
-
-        current => next
-      end do
-
-    end if
-
-    this%head => null()
-    this%tail => null()
+    do i = 1,this%items
+      deallocate(this%data)
+    end do
 
     this%items = 0
+    allocate(new_data(0))
+    call move_alloc(new_data, this%data)
 
     !! END SAFE OPERATION.
     status = thread_unlock_lock(this%c_mutex_pointer)
