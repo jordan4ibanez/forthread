@@ -55,15 +55,16 @@ contains
 
     class(concurrent_array_filo_queue), intent(inout) :: this
     class(*), intent(in), target :: generic_pointer
-    integer(c_int) :: status
+    integer(c_int) :: status, old_size
     type(queue_element), dimension(:), allocatable :: new_data
 
     status = thread_write_lock(this%c_mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
+    old_size = this%items
     this%items = this%items + 1
     allocate(new_data(this%items))
-    new_data = this%data(1:this%items)
+    new_data(1:old_size) = this%data(1:old_size)
     new_data(this%items)%data => generic_pointer
 
     call move_alloc(new_data, this%data)
@@ -80,7 +81,7 @@ contains
     class(concurrent_array_filo_queue), intent(inout) :: this
     class(*), intent(inout), pointer :: generic_pointer_option
     logical(c_bool) :: some
-    integer(c_int) :: status
+    integer(c_int) :: status, new_size
     type(queue_element), dimension(:), allocatable :: new_data
 
     status = thread_write_lock(this%c_mutex_pointer)
@@ -98,9 +99,14 @@ contains
 
     generic_pointer_option => this%data(1)%data
 
-    allocate(new_data(this%items - 1))
-    new_data = this%data(2:this%items)
-    this%items = this%items - 1
+    new_size = this%items - 1
+    allocate(new_data(new_size))
+    if (new_size > 0) then
+      new_data(1:new_size) = this%data(2:this%items)
+    end if
+
+    this%items = new_size
+
     call move_alloc(new_data, this%data)
 
     some = .true.
@@ -169,5 +175,14 @@ contains
     !! END SAFE OPERATION.
     status = thread_unlock_lock(this%c_mutex_pointer)
   end function concurrent_array_filo_queue_get_size
+
+  subroutine concurrent_array_filo_queue_destroy_mutex(this)
+    implicit none
+
+    class(concurrent_array_filo_queue), intent(inout) :: this
+
+    call thread_destroy_mutex_pointer(this%mutex)
+    this%c_mutex_pointer = c_null_ptr
+  end subroutine concurrent_array_filo_queue_destroy_mutex
 
 end module thread_filo_queue_array
