@@ -103,6 +103,8 @@ contains
     new_data = this%data(1:this%items)
     call move_alloc(new_data, this%data)
 
+    some = .true.
+
     !! END SAFE OPERATION.
     status = thread_unlock_lock(this%c_mutex_pointer)
   end function concurrent_array_filo_queue_pop
