@@ -146,20 +146,6 @@ contains
   end subroutine thread_initialize
 
 
-  !* Destroy a mutex pointer.
-  subroutine thread_destroy_mutex_pointer(input_mutex_pointer)
-    implicit none
-
-    type(mutex_rwlock), intent(inout), pointer :: input_mutex_pointer
-    integer(c_int) :: status
-
-    status = internal_pthread_rwlock_destroy(c_loc(input_mutex_pointer), c_null_ptr)
-
-    deallocate(input_mutex_pointer%raw_data_pointer)
-    deallocate(input_mutex_pointer)
-  end subroutine thread_destroy_mutex_pointer
-
-
   !* Create a new joinable thread.
   !* Returns you the thread struct.
   function create_joinable(subroutine_procedure_pointer, argument_pointer) result(new_joinable_thread) bind(c)
