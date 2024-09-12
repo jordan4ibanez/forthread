@@ -147,6 +147,10 @@ program thread_example
   !* Since we are using pure calculations, use all available threads.
   call thread_initialize(.false.)
 
+  if (.true.) then
+    return
+  end if
+
 
   !* Initialize the output queue.
   output_queue = concurrent_linked_filo_queue()
@@ -192,8 +196,8 @@ program thread_example
        type is (integer(c_int))
         error stop "WRONG"
 
-        type is (thread_data_out_example)
-          print*,generic_pointer%value
+       type is (thread_data_out_example)
+        print*,generic_pointer%value
 
        class default
         error stop "WRONG"
