@@ -15,27 +15,26 @@ program test_array_queue
 
   test = concurrent_array_filo_queue()
 
-  do
-    do i = 1,10000
-      print*,i
-      allocate(cool)
-      cool%data = "hi"//int_to_string(i)
-      call test%push(cool)
-    end do
 
-    do while(test%pop(generic_pointer))
-      select type(generic_pointer)
-       type is(hi)
-        print*, generic_pointer%data
-        deallocate(generic_pointer)
-       class default
-        error stop
-      end select
-    end do
+  do i = 1,10000
+    print*,i
+    allocate(cool)
+    cool%data = "hi"//int_to_string(i)
+    call test%push(cool)
+  end do
+
+  do while(test%pop(generic_pointer))
+    select type(generic_pointer)
+     type is(hi)
+      print*, generic_pointer%data
+      deallocate(generic_pointer)
+     class default
+      error stop
+    end select
   end do
 
   call test%destroy()
 
-  call sleep(100)
+  ! call sleep(100)
 
 end program test_array_queue
