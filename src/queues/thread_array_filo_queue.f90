@@ -96,11 +96,11 @@ contains
       return
     end if
 
-    generic_pointer_option => this%data(this%items)%data
+    generic_pointer_option => this%data(1)%data
 
+    allocate(new_data(this%items - 1))
+    new_data = this%data(2:this%items)
     this%items = this%items - 1
-    allocate(new_data(this%items))
-    new_data = this%data(1:this%items)
     call move_alloc(new_data, this%data)
 
     some = .true.
