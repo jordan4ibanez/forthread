@@ -8,9 +8,14 @@ module thread_filo_queue_array
   private
 
 
+  type :: queue_element
+    class(*), pointer :: data => null()
+  end type queue_element
+
+
   type :: concurrent_array_filo_queue
     private
-    class(*), dimension(:), allocatable :: data
+    type(queue_element), dimension(:), allocatable :: data
     type(mutex_rwlock), pointer :: mutex => null()
     type(c_ptr) :: c_mutex_pointer = c_null_ptr
     integer(c_int) :: items = 0
@@ -47,16 +52,17 @@ contains
     class(concurrent_array_filo_queue), intent(inout) :: this
     class(*), intent(in), target :: generic_pointer
     integer(c_int) :: status
-    class(*), dimension(:), allocatable :: new_data
+    type(queue_element), dimension(:), allocatable :: new_data
 
     status = thread_write_lock(this%c_mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
-    allocate(new_data(23))
-
     this%items = this%items + 1
+    allocate(new_data(this%items))
+    new_data = this%data
+    new_data(this%items)%data => generic_pointer
 
-
+    call move_alloc(new_data, this%data)
 
     !! END SAFE OPERATION.
     status = thread_unlock_lock(this%c_mutex_pointer)
