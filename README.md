@@ -11,4 +11,13 @@ It comes with two useful components:
 
 [Please see the tutorial](https://github.com/jordan4ibanez/forthread/blob/master/test/example.f90)
 
+### Add to your project:
+
+In your fpm.toml add:
+
+```toml
+[dependencies]
+forthread = { git = "https://github.com/jordan4ibanez/forthread" }
+```
+
 Like what I do? [My Patreon](https://www.patreon.com/jordan4ibanez)
