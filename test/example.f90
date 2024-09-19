@@ -172,7 +172,7 @@ program thread_example
       sending_data%output => output_queue
 
       !* Remember, we are binding to a C library. We must abide by C's rules.
-      call thread_create(c_funloc(thread_worker_thing), c_loc(sending_data))
+      call thread_create(thread_worker_thing, c_loc(sending_data))
     end do
 
     !* I've included a method for you to wait for a huge job to finish. :)

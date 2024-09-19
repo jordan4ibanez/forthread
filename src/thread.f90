@@ -186,12 +186,12 @@ contains
   subroutine thread_create(subroutine_procedure_pointer, argument_pointer)
     implicit none
 
-    type(c_funptr), intent(in), value :: subroutine_procedure_pointer
+    procedure(thread_function_c_interface) :: subroutine_procedure_pointer
     type(c_ptr), intent(in), value :: argument_pointer
     type(thread_queue_element), pointer :: new_element
 
     allocate(new_element)
-    new_element%subroutine_pointer = subroutine_procedure_pointer
+    new_element%subroutine_pointer = c_funloc(subroutine_procedure_pointer)
     new_element%data_to_send = argument_pointer
 
     call master_thread_queue%push(new_element)
