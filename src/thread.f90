@@ -59,7 +59,7 @@ module thread
 
   type(c_ptr) :: module_mutex
 
-  type(pthread_t), dimension(:), pointer :: available_threads
+  integer(c_int64_t), dimension(:), pointer :: available_threads
   type(thread_argument), dimension(:), pointer :: thread_arguments
   logical(c_bool), dimension(:), pointer :: thread_active
 
@@ -69,17 +69,18 @@ module thread
   interface
 
 
-    function internal_pthread_create(thread, attr, start_routine, arg) result(status) bind(c, name = "pthread_create")
+    function internal_for_p_thread_create_thread(attr, start_routine, arg) result(tid) bind(c, name = "for_p_thread_create_thread")
       use :: thread_types
       use, intrinsic :: iso_c_binding
       implicit none
 
-      type(pthread_t), intent(inout) :: thread
       type(c_ptr), intent(in), value :: attr
       type(c_funptr), intent(in), value :: start_routine
       type(c_ptr), intent(in), value :: arg
-      integer(c_int) :: status
-    end function internal_pthread_create
+      !* Keep in mind: this type is simply a size_t (8 bytes) in POSIX.
+      !* Restricting to 64 bit systems.
+      integer(c_int64_t) :: tid
+    end function internal_for_p_thread_create_thread
 
 
     function internal_pthread_join(thread, retval) result(status) bind(c, name = "pthread_join")
