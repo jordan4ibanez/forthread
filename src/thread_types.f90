@@ -16,8 +16,8 @@ module thread_types
 
   ! A raw thread queue element.
   type :: thread_queue_element
-    type(c_funptr) :: subroutine_pointer = c_null_funptr
-    type(c_ptr) :: data_to_send = c_null_ptr
+    type(c_funptr) :: function_ptr = c_null_funptr
+    type(c_ptr) :: data_to_send_c_ptr = c_null_ptr
   end type thread_queue_element
 
 

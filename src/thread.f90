@@ -148,16 +148,16 @@ contains
 
   !* Create a new joinable thread.
   !* Returns you the thread struct.
-  function create_joinable(subroutine_procedure_pointer, argument_pointer) result(new_joinable_thread) bind(c)
+  function create_joinable(subroutine_c_funptr, argument_ptr) result(new_joinable_thread) bind(c)
     use :: internal_temp_string
     implicit none
 
-    type(c_funptr), intent(in), value :: subroutine_procedure_pointer
-    type(c_ptr), intent(in), value :: argument_pointer
+    type(c_funptr), intent(in), value :: subroutine_c_funptr
+    type(c_ptr), intent(in), value :: argument_ptr
     type(pthread_t) :: new_joinable_thread
     integer(c_int) :: status
 
-    status = internal_pthread_create(new_joinable_thread, c_null_ptr, subroutine_procedure_pointer, argument_pointer)
+    status = internal_pthread_create(new_joinable_thread, c_null_ptr, subroutine_c_funptr, argument_ptr)
 
     if (status /= THREAD_OK) then
       error stop "[Thread] Error: Failed to create a joinable thread. Error status: ["//int_to_string(status)//"]"
@@ -166,15 +166,15 @@ contains
 
 
   !* Join a thread back into the main thread.
-  subroutine thread_join(joinable_thread, return_val_pointer) bind(c)
+  subroutine thread_join(joinable_thread, return_val_c_ptr) bind(c)
     use :: internal_temp_string
     implicit none
 
     type(pthread_t), intent(in), value :: joinable_thread
-    type(c_ptr), intent(in), value :: return_val_pointer
+    type(c_ptr), intent(in), value :: return_val_c_ptr
     integer(c_int) :: status
 
-    status = internal_pthread_join(joinable_thread%tid, return_val_pointer)
+    status = internal_pthread_join(joinable_thread%tid, return_val_c_ptr)
 
     if (status /= THREAD_OK) then
       error stop "[Forthread] Error: Tried to join non-existent joinable_thread! Error status: ["//int_to_string(status)//"]"
@@ -183,15 +183,15 @@ contains
 
 
   !* Queue up a thread to be run.
-  subroutine thread_create(subroutine_procedure_pointer, argument_pointer)
+  subroutine thread_create(subroutine_to_use, argument_c_ptr)
     implicit none
 
-    procedure(thread_function_c_interface) :: subroutine_procedure_pointer
-    type(c_ptr), intent(in), value :: argument_pointer
+    procedure(thread_function_c_interface) :: subroutine_to_use
+    type(c_ptr), intent(in), value :: argument_c_ptr
     type(thread_queue_element) :: new_element
 
-    new_element%subroutine_pointer = c_funloc(subroutine_procedure_pointer)
-    new_element%data_to_send = argument_pointer
+    new_element%function_ptr = c_funloc(subroutine_to_use)
+    new_element%data_to_send_c_ptr = argument_c_ptr
 
     call master_thread_queue%push(new_element)
   end subroutine thread_create
@@ -245,9 +245,9 @@ contains
 
         ! Set the raw data to send.
         thread_arguments(thread_to_use)%active_flag => thread_active(thread_to_use)
-        thread_arguments(thread_to_use)%data = new_element%data_to_send
+        thread_arguments(thread_to_use)%data = new_element%data_to_send_c_ptr
 
-        function_ptr = new_element%subroutine_pointer
+        function_ptr = new_element%function_ptr
 
         ! Now clean up the shell.
         deallocate(new_element)
