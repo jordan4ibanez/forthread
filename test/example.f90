@@ -54,19 +54,19 @@ contains
 
     !* I suppose we will get into this now.
 
-    ! Check association. If this is null, something has gone horribly wrong.
+    ! ! Check association. If this is null, something has gone horribly wrong.
     if (.not. c_associated(c_arg_pointer)) then
       error stop "[Thread worker thing] Error: c_arg_pointer was null."
     end if
 
-    ! Transfer the data into Fortran.
+    ! ! Transfer the data into Fortran.
     call c_f_pointer(c_arg_pointer, argument_pointer)
 
 
-    !* Now we have our thread module mutex and the pointer to the data!
-    !* Let's grab that data from the c_ptr.
+    ! !* Now we have our thread module mutex and the pointer to the data!
+    ! !* Let's grab that data from the c_ptr.
 
-    ! We really need that data, it cannot be null.
+    ! ! We really need that data, it cannot be null.
     if (.not. c_associated(argument_pointer%data)) then
       error stop "[Thread worker thing] Error: The sent data was null!"
     end if
@@ -74,45 +74,47 @@ contains
     call c_f_pointer(argument_pointer%data, some_cool_data)
 
 
-    !* And now we have it. 8)
-    !* So let's print it out.
+    ! !* And now we have it. 8)
+    ! !* So let's print it out.
 
     print*,"hello from thread", some_cool_data%a_number, "the string is: "//some_cool_data%a_string
 
-
-    !* Well, we also got sent in that pointer, let's output some data to it.
-    !? Also, very important note:
-    !* This is the concurrent FILO queue. You must ensure that your data you push into it
-    !* is a pointer or else it will be extremely undefined behavior.
-
-    allocate(output)
-    output%value = some_cool_data%a_number
-    call some_cool_data%output%push(output)
+    deallocate(some_cool_data%a_string)
 
 
-    !* You must remember: We are working in manual memory management.
-    !* In this specific scenario, all we have to do is free the cool data.
-    !* But it might get much more complex depending on what you're doing.
+    ! !* Well, we also got sent in that pointer, let's output some data to it.
+    ! !? Also, very important note:
+    ! !* This is the concurrent FILO queue. You must ensure that your data you push into it
+    ! !* is a pointer or else it will be extremely undefined behavior.
+
+    ! allocate(output)
+    ! output%value = some_cool_data%a_number
+    ! call some_cool_data%output%push(output)
+
+
+    ! !* You must remember: We are working in manual memory management.
+    ! !* In this specific scenario, all we have to do is free the cool data.
+    ! !* But it might get much more complex depending on what you're doing.
 
     deallocate(some_cool_data)
 
 
-    !* Remember that void pointer?
+    ! !* Remember that void pointer?
 
     void_pointer = c_null_ptr
 
 
-    !* Now, for the finale.
-    !* This part is extremely important, do it in this order.
-    !* You will be talking straight to the library during this.
+    ! !* Now, for the finale.
+    ! !* This part is extremely important, do it in this order.
+    ! !* You will be talking straight to the library during this.
 
-    !* Lock the master mutex.
+    ! !* Lock the master mutex.
     status = thread_write_lock(argument_pointer%mutex_ptr)
 
-    !* This is a pointer into the thread library to say: "this thread finished"
+    ! !* This is a pointer into the thread library to say: "this thread finished"
     argument_pointer%active_flag = .false.
 
-    !* Finally, unlock the mutex.
+    ! !* Finally, unlock the mutex.
     status = thread_unlock_lock(argument_pointer%mutex_ptr)
 
     !* This thread has completed. :)
@@ -162,6 +164,7 @@ program thread_example
       !* Reallocate the pointer every loop.
       allocate(sending_data)
       sending_data%a_number = i
+      allocate(character(len = 3) :: sending_data%a_string)
       sending_data%a_string = "hi!"
       ! Yes, this is quite pointy.
       sending_data%output => output_queue
@@ -180,21 +183,19 @@ program thread_example
 
 
     ! Spin while we await all the threads to finish.
-    do while (thread_await_all_thread_completion())
-    end do
-
-    print*,"hi"
+    ! do while (thread_await_all_thread_completion())
+    ! end do
 
 
-    !* Let's grab that data that the threads output!
-    do while(output_queue%pop(raw_c_ptr))
-      call c_f_pointer(raw_c_ptr, pointer_data)
+    ! !* Let's grab that data that the threads output!
+    ! do while(output_queue%pop(raw_c_ptr))
+    !   call c_f_pointer(raw_c_ptr, pointer_data)
 
-      print*,pointer_data%value
+    !   print*,pointer_data%value
 
-      ! Don't forget to deallocate. 8)
-      deallocate(pointer_data)
-    end do
+    !   ! Don't forget to deallocate. 8)
+    !   deallocate(pointer_data)
+    ! end do
 
   end do
 
