@@ -1,6 +1,6 @@
 !*
 !* A very simple example which shows off a pool dumping data into
-!* a concurrent FILO queue.
+!* a concurrent FIFO queue.
 !*
 module an_example_thread_module
   use, intrinsic :: iso_c_binding
@@ -136,7 +136,7 @@ program thread_example
   !* Fortran runtime will do to it.
   type(thread_data_in_example), pointer :: sending_data
 
-  !* We will create a concurrent FILO queue for the threads to output to.
+  !* We will create a concurrent FIFO queue for the threads to output to.
   type(concurrent_fifo_queue), target :: output_queue
 
   !* You'll see this used later. 8)
