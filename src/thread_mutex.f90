@@ -2,6 +2,7 @@ module thread_mutex
   use :: thread_types
   implicit none
 
+
   public :: thread_write_lock
   public :: thread_read_lock
   public :: thread_unlock_lock
@@ -51,6 +52,7 @@ module thread_mutex
       type(c_ptr), intent(in), value :: rwlock
       integer(c_int) :: status
     end function thread_unlock_lock
+
 
   end interface
 
