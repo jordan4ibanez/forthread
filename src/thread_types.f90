@@ -18,27 +18,4 @@ module thread_types
   end type thread_argument
 
 
-  interface
-
-
-    function for_p_thread_get_cpu_threads(leave_room_for_main) result(thread_count) bind(c, name = "for_p_thread_get_cpu_threads")
-      use, intrinsic :: iso_c_binding
-      implicit none
-
-      logical(c_bool), intent(in), value :: leave_room_for_main
-      integer(c_int) :: thread_count
-    end function for_p_thread_get_cpu_threads
-
-
-    function for_p_thread_get_pthread_mutex_t_width() result(data_width) bind(c, name = "for_p_thread_get_pthread_mutex_t_width")
-      use, intrinsic :: iso_c_binding
-      implicit none
-
-      integer(c_int) :: data_width
-    end function for_p_thread_get_pthread_mutex_t_width
-
-
-  end interface
-
-
 end module thread_types
