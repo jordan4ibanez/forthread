@@ -35,7 +35,6 @@ module thread
   public :: new_concurrent_fifo_queue
   public :: concurrent_fifo_queue
 
-  public :: pthread_t
   public :: thread_argument
   public :: thread_queue_element
   public :: concurrent_fifo_queue
@@ -69,16 +68,17 @@ module thread
   interface
 
 
-    function internal_for_p_thread_create_thread(attr, start_routine, arg) result(tid) bind(c, name = "for_p_thread_create_thread")
+    function internal_for_p_thread_create_thread(tid, attr, start_routine, arg) result(status) bind(c, name = "for_p_thread_create_thread")
       use, intrinsic :: iso_c_binding
       implicit none
 
+      !* Keep in mind: this type is simply a size_t (8 bytes) in POSIX.
+      !* Restricting to 64 bit systems.
+      integer(c_int64_t), intent(inout) :: tid
       type(c_ptr), intent(in), value :: attr
       type(c_funptr), intent(in), value :: start_routine
       type(c_ptr), intent(in), value :: arg
-      !* Keep in mind: this type is simply a size_t (8 bytes) in POSIX.
-      !* Restricting to 64 bit systems.
-      integer(c_int64_t) :: tid
+      integer(c_int) :: status
     end function internal_for_p_thread_create_thread
 
 
