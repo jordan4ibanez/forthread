@@ -11,8 +11,9 @@
 
 //! TODO: Needs to be tested on FreeBSD.
 
-//* Make this portable.
-
+/**
+ * Create a mutex pointer.
+ */
 pthread_mutex_t *for_p_thread_create_mutex()
 {
   pthread_mutex_t *mutex = malloc(sizeof(pthread_mutex_t));
@@ -24,6 +25,17 @@ pthread_mutex_t *for_p_thread_create_mutex()
   }
 
   return mutex;
+}
+
+/**
+ * Destroy a mutex pointer.
+ */
+void for_p_thread_destroy_mutex(pthread_mutex_t *mutex)
+{
+  if (pthread_mutex_destroy(mutex) != 0)
+  {
+    assert(false);
+  }
 }
 
 //* Getting the number of available threads.
