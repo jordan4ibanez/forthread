@@ -20,8 +20,8 @@ module thread_fifo_queue_linked
     procedure :: push => concurrent_fifo_queue_push
     procedure :: pop => concurrent_fifo_queue_pop
     procedure :: destroy => concurrent_fifo_queue_destroy
+    procedure :: count => concurrent_fifo_queue_get_count
     procedure :: is_empty => concurrent_fifo_queue_is_empty
-    procedure :: size => concurrent_fifo_queue_get_size
   end type concurrent_fifo_queue
 
 
@@ -91,6 +91,24 @@ contains
   end subroutine concurrent_fifo_queue_destroy
 
 
+  !* Check number of items in the queue.
+  function concurrent_fifo_queue_get_count(this) result(count)
+    implicit none
+
+    class(concurrent_fifo_queue), intent(inout) :: this
+    integer(c_size_t) :: count
+    integer(c_int) :: discard
+
+    discard = thread_write_lock(this%mutex_pointer)
+    !! BEGIN SAFE OPERATION.
+
+    count = this%i_queue%count()
+
+    !! END SAFE OPERATION.
+    discard = thread_unlock_lock(this%mutex_pointer)
+  end function concurrent_fifo_queue_get_count
+
+
   !* Check if the queue is empty.
   function concurrent_fifo_queue_is_empty(this) result(empty)
     implicit none
@@ -102,29 +120,14 @@ contains
     discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
-    empty = this%size() == 0
+    empty = this%i_queue%is_empty()
 
     !! END SAFE OPERATION.
     discard = thread_unlock_lock(this%mutex_pointer)
   end function concurrent_fifo_queue_is_empty
 
 
-  !* Check number of items in the queue.
-  function concurrent_fifo_queue_get_size(this) result(item_count)
-    implicit none
 
-    class(concurrent_fifo_queue), intent(inout) :: this
-    integer(c_int) :: item_count
-    integer(c_int) :: discard
-
-    discard = thread_write_lock(this%mutex_pointer)
-    !! BEGIN SAFE OPERATION.
-
-
-
-    !! END SAFE OPERATION.
-    discard = thread_unlock_lock(this%mutex_pointer)
-  end function concurrent_fifo_queue_get_size
 
 
 end module thread_fifo_queue_linked
