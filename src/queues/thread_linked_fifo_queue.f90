@@ -55,10 +55,10 @@ contains
 
     class(concurrent_linked_filo_queue), intent(inout) :: this
     class(*), intent(in), target :: generic_pointer
-    integer(c_int) :: status
+    integer(c_int) :: discard
     type(queue_node), pointer :: new_node
 
-    status = thread_write_lock(this%mutex_pointer)
+    discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     allocate(new_node)
@@ -82,7 +82,7 @@ contains
     this%items = this%items + 1
 
     !! END SAFE OPERATION.
-    status = thread_unlock_lock(this%mutex_pointer)
+    discard = thread_unlock_lock(this%mutex_pointer)
   end subroutine concurrent_linked_filo_queue_push
 
 
@@ -93,10 +93,10 @@ contains
     class(concurrent_linked_filo_queue), intent(inout) :: this
     class(*), intent(inout), pointer :: generic_pointer_option
     logical(c_bool) :: some
-    integer(c_int) :: status
+    integer(c_int) :: discard
     type(queue_node), pointer :: next_pointer
 
-    status = thread_write_lock(this%mutex_pointer)
+    discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     some = .false.
@@ -128,7 +128,7 @@ contains
     end if
 
     !! END SAFE OPERATION.
-    status = thread_unlock_lock(this%mutex_pointer)
+    discard = thread_unlock_lock(this%mutex_pointer)
   end function concurrent_linked_filo_queue_pop
 
 
@@ -139,9 +139,9 @@ contains
 
     class(concurrent_linked_filo_queue), intent(inout) :: this
     type(queue_node), pointer :: current, next
-    integer(c_int) :: status
+    integer(c_int) :: discard
 
-    status = thread_write_lock(this%mutex_pointer)
+    discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     if (associated(this%head)) then
@@ -169,7 +169,7 @@ contains
     this%items = 0
 
     !! END SAFE OPERATION.
-    status = thread_unlock_lock(this%mutex_pointer)
+    discard = thread_unlock_lock(this%mutex_pointer)
   end subroutine concurrent_linked_filo_queue_destroy
 
 
@@ -179,15 +179,15 @@ contains
 
     class(concurrent_linked_filo_queue), intent(inout) :: this
     logical(c_bool) :: empty
-    integer(c_int) :: status
+    integer(c_int) :: discard
 
-    status = thread_write_lock(this%mutex_pointer)
+    discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     empty = this%items == 0
 
     !! END SAFE OPERATION.
-    status = thread_unlock_lock(this%mutex_pointer)
+    discard = thread_unlock_lock(this%mutex_pointer)
   end function concurrent_linked_filo_queue_is_empty
 
 
@@ -197,15 +197,15 @@ contains
 
     class(concurrent_linked_filo_queue), intent(inout) :: this
     integer(c_int) :: item_count
-    integer(c_int) :: status
+    integer(c_int) :: discard
 
-    status = thread_write_lock(this%mutex_pointer)
+    discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     item_count = this%items
 
     !! END SAFE OPERATION.
-    status = thread_unlock_lock(this%mutex_pointer)
+    discard = thread_unlock_lock(this%mutex_pointer)
   end function concurrent_linked_filo_queue_get_size
 
 
