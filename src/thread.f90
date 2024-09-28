@@ -142,7 +142,7 @@ contains
       thread_active(i) = .false.
     end do
 
-    master_thread_queue = concurrent_fifo_queue()
+    master_thread_queue = new_concurrent_fifo_queue(sizeof(thread_queue_element()))
   end subroutine thread_initialize
 
 
