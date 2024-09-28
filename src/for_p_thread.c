@@ -37,11 +37,13 @@ void for_p_thread_destroy_mutex(pthread_mutex_t *mutex)
   {
     assert(false);
   }
+
+  free(mutex);
 }
 
 /**
  * Get the number of available threads.
- * 
+ *
  * If leave_room_for_main is true, this will give you N-1 threads.
  *
  * You can thank tavianator: https://www.reddit.com/r/C_Programming/comments/6zxnr1/comment/dmzuwt6
