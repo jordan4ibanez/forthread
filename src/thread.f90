@@ -270,11 +270,12 @@ contains
   function find_free_thread() result(thread_index)
     implicit none
 
-    integer(c_int) :: thread_index, i, status
+    integer(c_int) :: thread_index, i, discard
 
     thread_index = 0
 
-    status = thread_read_lock(c_loc(module_mutex))
+    discard = thread_read_lock(module_mutex)
+
     do i = 1,CPU_THREADS
       if (.not. thread_active(i)) then
         thread_index = i
@@ -283,7 +284,8 @@ contains
         exit
       end if
     end do
-    status = thread_unlock_lock(c_loc(module_mutex))
+
+    discard = thread_unlock_lock(module_mutex)
   end function find_free_thread
 
 
@@ -307,15 +309,16 @@ contains
 
     keep_going = .true.
 
-    status = thread_read_lock(c_loc(module_mutex))
+    status = thread_read_lock(module_mutex)
 
     do i = 1,CPU_THREADS
       if (thread_active(i)) then
-        status = thread_unlock_lock(c_loc(module_mutex))
+        status = thread_unlock_lock(module_mutex)
         return
       end if
     end do
-    status = thread_unlock_lock(c_loc(module_mutex))
+
+    status = thread_unlock_lock(module_mutex)
 
     keep_going = .false.
   end function thread_await_all_thread_completion
