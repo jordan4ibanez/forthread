@@ -96,20 +96,20 @@ module thread
 !* BEGIN FUNCTION BLUEPRINTS.
 
 
-    recursive function thread_function_c_interface(arg_pointer) result(void_pointer) bind(c)
+    recursive function thread_function_c_interface(raw_c_arg_ptr) result(void_pointer) bind(c)
       use, intrinsic :: iso_c_binding
       implicit none
 
-      type(c_ptr), intent(in), value :: arg_pointer
+      type(c_ptr), intent(in), value :: raw_c_arg_ptr
       type(c_ptr) :: void_pointer
     end function thread_function_c_interface
 
 
-    subroutine thread_garbage_collector_c_interface(old_data) bind(c)
+    subroutine thread_garbage_collector_c_interface(old_data_c_ptr) bind(c)
       use, intrinsic :: iso_c_binding
       implicit none
 
-      type(c_ptr), intent(in), value :: old_data
+      type(c_ptr), intent(in), value :: old_data_c_ptr
     end subroutine thread_garbage_collector_c_interface
 
 
@@ -206,7 +206,7 @@ contains
     type(c_ptr) :: raw_c_ptr
     type(thread_queue_element), pointer :: new_element
     logical(c_bool) :: translator_bool
-    type(c_funptr) :: function_pointer
+    type(c_funptr) :: function_ptr
 
     if (master_thread_queue%is_empty()) then
       return
@@ -247,7 +247,7 @@ contains
         thread_arguments(thread_to_use)%active_flag => thread_active(thread_to_use)
         thread_arguments(thread_to_use)%data = new_element%data_to_send
 
-        function_pointer = new_element%subroutine_pointer
+        function_ptr = new_element%subroutine_pointer
 
         ! Now clean up the shell.
         deallocate(new_element)
@@ -258,7 +258,7 @@ contains
         end if
 
         ! Fire off the thread.
-        available_threads(thread_to_use) = create_joinable(function_pointer, c_loc(thread_arguments(thread_to_use)))
+        available_threads(thread_to_use) = create_joinable(function_ptr, c_loc(thread_arguments(thread_to_use)))
       else
         ! Nothing left to get.
         exit
