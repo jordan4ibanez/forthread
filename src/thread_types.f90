@@ -5,6 +5,7 @@ module thread_types
 
   ! Raw thread struct.
   ! https://ffmpeg.org/doxygen/3.1/os2threads_8h_source.html
+  !! THIS THING IS A MESS! REMOVE IT!
   type, bind(c) :: pthread_t
     integer(c_int64_t) :: tid = 0_8
     type(c_funptr) :: start_routine
