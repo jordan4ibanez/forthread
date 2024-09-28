@@ -201,7 +201,7 @@ contains
 
     integer(c_size_t) :: queue_size, i
     integer(c_int) :: thread_to_use, status
-    class(*), pointer :: generic_pointer
+    type(c_ptr) :: raw_c_ptr
     type(thread_queue_element), pointer :: new_element
     logical(c_bool) :: translator_bool
     type(c_funptr) :: function_pointer
@@ -227,14 +227,9 @@ contains
         exit
       end if
 
-      if (master_thread_queue%pop(generic_pointer)) then
+      if (master_thread_queue%pop(raw_c_ptr)) then
 
-        select type (generic_pointer)
-         type is (thread_queue_element)
-          new_element => generic_pointer
-         class default
-          error stop "[Thread] Error: Wrong data type in the queue."
-        end select
+        call c_f_pointer(raw_c_ptr, new_element)
 
         ! Set the completion flag.
         status = thread_write_lock(module_mutex)
