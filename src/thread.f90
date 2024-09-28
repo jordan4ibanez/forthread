@@ -32,6 +32,9 @@ module thread
 
   private
 
+  public :: new_concurrent_fifo_queue
+  public :: concurrent_fifo_queue
+
   public :: pthread_t
   public :: thread_argument
   public :: thread_queue_element

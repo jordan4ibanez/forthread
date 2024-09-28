@@ -8,6 +8,7 @@ module thread_fifo_queue_linked
   private
 
 
+  public :: new_concurrent_fifo_queue
   public :: concurrent_fifo_queue
 
 
