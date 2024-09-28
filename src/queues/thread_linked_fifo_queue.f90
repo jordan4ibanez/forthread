@@ -1,4 +1,4 @@
-module thread_filo_queue_linked
+module thread_fifo_queue_linked
   use :: thread_types
   use :: thread_mutex
   use, intrinsic :: iso_c_binding
@@ -9,6 +9,7 @@ module thread_filo_queue_linked
 
 
   public :: concurrent_linked_filo_queue
+
 
   type :: queue_node
     class(queue_node), pointer :: next => null()
@@ -208,4 +209,4 @@ contains
   end function concurrent_linked_filo_queue_get_size
 
 
-end module thread_filo_queue_linked
+end module thread_fifo_queue_linked
