@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <inttypes.h>
 // This one is for looking up error IDs.
 // #include <errno.h>
 // Go through to <errno-base.h>
@@ -40,7 +41,7 @@ void for_p_thread_destroy_mutex(pthread_mutex_t *mutex)
 
 //* Getting the number of available threads.
 //* You can thank tavianator: https://www.reddit.com/r/C_Programming/comments/6zxnr1/comment/dmzuwt6
-int for_p_thread_get_cpu_threads(bool leave_room_for_main)
+int32_t for_p_thread_get_cpu_threads(bool leave_room_for_main)
 {
   int thread_count = sysconf(_SC_NPROCESSORS_ONLN);
   if (leave_room_for_main)
