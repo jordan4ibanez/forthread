@@ -12,6 +12,9 @@ auto-tests = true
 auto-examples = true
 module-naming = false
 
+[dependencies]
+for_fifo_queue = { git = "https://github.com/jordan4ibanez/for_fifo_queue" }
+
 [install]
 library = false
 
