@@ -16,7 +16,7 @@ module thread_fifo_queue_linked
   type :: concurrent_fifo_queue
     private
     type(fifo) :: i_queue
-    type(c_ptr) :: mutex_pointer = c_null_ptr
+    type(c_ptr) :: mutex_pointer
   contains
     procedure :: push => concurrent_fifo_queue_push
     procedure :: pop => concurrent_fifo_queue_pop
