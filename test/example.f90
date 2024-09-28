@@ -42,7 +42,7 @@ contains
     type(thread_argument), pointer :: argument_pointer
 
     !* This is the message we will be sending back.
-    type(thread_data_out_example), pointer :: output
+    type(thread_data_out_example) :: output
 
     !* Status is basically if we want to look at the result of mutex locking.
     !* (You'll see this later.)
