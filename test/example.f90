@@ -11,7 +11,7 @@ module an_example_thread_module
   !* This is our data that will be sent into the thread from main.
   type :: thread_data_in_example
     integer(c_int) :: a_number
-    character(len = :, kind = c_char), allocatable :: a_string
+    character(len = :, kind = c_char), pointer :: a_string
     !* This one is a bit special, it'll make sense as you read.
     type(concurrent_fifo_queue), pointer :: output
   end type thread_data_in_example
@@ -149,7 +149,7 @@ program thread_example
   call thread_initialize(.false.)
 
   !* Initialize the output queue.
-  output_queue = concurrent_fifo_queue()
+  output_queue = new_concurrent_fifo_queue(sizeof(thread_data_out_example(0)))
 
   !* We'll make this an infinite loop because that's cool.
   do
