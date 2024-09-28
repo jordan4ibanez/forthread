@@ -188,9 +188,8 @@ contains
 
     procedure(thread_function_c_interface) :: subroutine_procedure_pointer
     type(c_ptr), intent(in), value :: argument_pointer
-    type(thread_queue_element), pointer :: new_element
+    type(thread_queue_element) :: new_element
 
-    allocate(new_element)
     new_element%subroutine_pointer = c_funloc(subroutine_procedure_pointer)
     new_element%data_to_send = argument_pointer
 
