@@ -40,18 +40,17 @@ contains
 
 
   !* Push an element into the end of a queue.
-  subroutine concurrent_fifo_queue_push(this, generic_pointer)
+  subroutine concurrent_fifo_queue_push(this, generic)
     implicit none
 
     class(concurrent_fifo_queue), intent(inout) :: this
-    class(*), intent(in), target :: generic_pointer
+    class(*), intent(in), target :: generic
     integer(c_int) :: discard
 
     discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
-
-
+    call this%i_queue%push(generic)
 
     !! END SAFE OPERATION.
     discard = thread_unlock_lock(this%mutex_pointer)
@@ -59,37 +58,36 @@ contains
 
 
   !* Pop the first element off the queue.
-  function concurrent_fifo_queue_pop(this, generic_pointer_option) result(some)
+  function concurrent_fifo_queue_pop(this, raw_c_ptr) result(exists)
     implicit none
 
     class(concurrent_fifo_queue), intent(inout) :: this
-    class(*), intent(inout), pointer :: generic_pointer_option
-    logical(c_bool) :: some
+    type(c_ptr), intent(inout) :: raw_c_ptr
+    logical(c_bool) :: exists
     integer(c_int) :: discard
 
     discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
+    exists = this%i_queue%pop(raw_c_ptr)
 
     !! END SAFE OPERATION.
     discard = thread_unlock_lock(this%mutex_pointer)
   end function concurrent_fifo_queue_pop
 
 
-  !* Destroy all data in a queue.
-  !! This will not destroy the mutex. You are still required to do that.
+  !* Destroy the underlying C memory.
+  !? I HIGHLY recommend you pop this thing until it's empty and free the pointers.
+  !? All this does is free the C struct and the mutex.
+  !! This IS NOT thread safe.
   subroutine concurrent_fifo_queue_destroy(this)
     implicit none
 
     class(concurrent_fifo_queue), intent(inout) :: this
-    integer(c_int) :: discard
 
-    discard = thread_write_lock(this%mutex_pointer)
-    !! BEGIN SAFE OPERATION.
+    call this%i_queue%destroy()
+    call internal_for_p_thread_destroy_mutex(this%mutex_pointer)
 
-
-    !! END SAFE OPERATION.
-    discard = thread_unlock_lock(this%mutex_pointer)
   end subroutine concurrent_fifo_queue_destroy
 
 
@@ -104,7 +102,7 @@ contains
     discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
-
+    empty = this%size() == 0
 
     !! END SAFE OPERATION.
     discard = thread_unlock_lock(this%mutex_pointer)
