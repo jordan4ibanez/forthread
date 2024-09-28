@@ -237,14 +237,14 @@ contains
         end select
 
         ! Set the completion flag.
-        status = thread_write_lock(c_loc(module_mutex))
+        status = thread_write_lock(module_mutex)
 
         translator_bool = .true.
         thread_active(thread_to_use) = translator_bool
 
-        thread_arguments(thread_to_use)%mutex_pointer = c_loc(module_mutex)
+        thread_arguments(thread_to_use)%mutex_pointer = module_mutex
 
-        status = thread_unlock_lock(c_loc(module_mutex))
+        status = thread_unlock_lock(module_mutex)
 
         ! Set the raw data to send.
         thread_arguments(thread_to_use)%active_flag => thread_active(thread_to_use)
