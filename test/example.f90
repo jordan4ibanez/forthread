@@ -182,19 +182,19 @@ program thread_example
 
 
     ! Spin while we await all the threads to finish.
-    ! do while (thread_await_all_thread_completion())
-    ! end do
+    do while (thread_await_all_thread_completion())
+    end do
 
 
     !* Let's grab that data that the threads output!
-    ! do while(output_queue%pop(raw_c_ptr))
-    !   call c_f_pointer(raw_c_ptr, pointer_data)
+    do while(output_queue%pop(raw_c_ptr))
+      call c_f_pointer(raw_c_ptr, pointer_data)
 
-    !   print*,pointer_data%value
+      print*,pointer_data%value
 
-    !   ! Don't forget to deallocate. 8)
-    !   deallocate(pointer_data)
-    ! end do
+      ! Don't forget to deallocate. 8)
+      deallocate(pointer_data)
+    end do
 
   end do
 
