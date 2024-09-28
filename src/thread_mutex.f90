@@ -10,24 +10,20 @@ module thread_mutex
   interface
 
 
-    function internal_pthread_rwlock_init(rwlock, attr) result(status) bind(c, name = "pthread_rwlock_init")
+    function internal_for_p_thread_create_mutex() result(c_mutex_pointer) bind(c, name = "for_p_thread_create_mutex")
+      use, intrinsic :: iso_c_binding
+      implicit none
+
+      type(c_ptr) :: c_mutex_pointer
+    end function internal_for_p_thread_create_mutex
+
+
+    subroutine internal_for_p_thread_destroy_mutex(rwlock) bind(c, name = "for_p_thread_destroy_mutex")
       use, intrinsic :: iso_c_binding
       implicit none
 
       type(c_ptr), intent(in), value :: rwlock
-      type(c_ptr), intent(in), value :: attr
-      integer(c_int) :: status
-    end function internal_pthread_rwlock_init
-
-
-    function internal_pthread_rwlock_destroy(rwlock, attr) result(status) bind(c, name = "pthread_rwlock_destroy")
-      use, intrinsic :: iso_c_binding
-      implicit none
-
-      type(c_ptr), intent(in), value :: rwlock
-      type(c_ptr), intent(in), value :: attr
-      integer(c_int) :: status
-    end function internal_pthread_rwlock_destroy
+    end subroutine internal_for_p_thread_destroy_mutex
 
 
     function thread_write_lock(rwlock) result(status) bind(c, name = "pthread_rwlock_wrlock")
