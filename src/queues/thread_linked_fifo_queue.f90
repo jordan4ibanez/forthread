@@ -46,30 +46,12 @@ contains
     class(concurrent_fifo_queue), intent(inout) :: this
     class(*), intent(in), target :: generic_pointer
     integer(c_int) :: discard
-    type(queue_node), pointer :: new_node
 
     discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
-    allocate(new_node)
-    new_node%data => generic_pointer
 
-    ! If the head is null, this is the new head.
-    if (.not. associated(this%head)) then
-      this%head => new_node
-    end if
 
-    ! If we have a tail, it now points to the new node.
-    ! The new node then becomes the tail.
-    if (associated(this%tail)) then
-      this%tail%next => new_node
-      this%tail => new_node
-    else
-      ! If we do not have a tail, the new node is now the tail.
-      this%tail => new_node
-    end if
-
-    this%items = this%items + 1
 
     !! END SAFE OPERATION.
     discard = thread_unlock_lock(this%mutex_pointer)
@@ -84,38 +66,10 @@ contains
     class(*), intent(inout), pointer :: generic_pointer_option
     logical(c_bool) :: some
     integer(c_int) :: discard
-    type(queue_node), pointer :: next_pointer
 
     discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
-    some = .false.
-
-    generic_pointer_option => null()
-
-    ! If we have a head, the output will become the head data.
-    ! The head will now be shifted forward, and the old head will be cleaned up.
-    if (associated(this%head)) then
-
-      some = .true.
-
-      next_pointer => this%head%next
-
-      ! First we unshell the data.
-      generic_pointer_option => this%head%data
-
-      ! Then we deallocate.
-      deallocate(this%head)
-
-      this%head => next_pointer
-
-      this%items = this%items - 1
-    end if
-
-    !* If the head was pointed to null, we must nullify the tail.
-    if (.not. associated(this%head)) then
-      this%tail => null()
-    end if
 
     !! END SAFE OPERATION.
     discard = thread_unlock_lock(this%mutex_pointer)
@@ -128,35 +82,11 @@ contains
     implicit none
 
     class(concurrent_fifo_queue), intent(inout) :: this
-    type(queue_node), pointer :: current, next
     integer(c_int) :: discard
 
     discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
-    if (associated(this%head)) then
-
-      current => this%head
-
-      do
-        next => current%next
-
-        deallocate(current)
-
-        ! Pointing at nothing.
-        if (.not. associated(next)) then
-          exit
-        end if
-
-        current => next
-      end do
-
-    end if
-
-    this%head => null()
-    this%tail => null()
-
-    this%items = 0
 
     !! END SAFE OPERATION.
     discard = thread_unlock_lock(this%mutex_pointer)
@@ -174,7 +104,7 @@ contains
     discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
-    empty = this%items == 0
+
 
     !! END SAFE OPERATION.
     discard = thread_unlock_lock(this%mutex_pointer)
@@ -192,7 +122,7 @@ contains
     discard = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
-    item_count = this%items
+
 
     !! END SAFE OPERATION.
     discard = thread_unlock_lock(this%mutex_pointer)
