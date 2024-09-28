@@ -137,7 +137,8 @@ program thread_example
   type(concurrent_fifo_queue), target :: output_queue
 
   !* You'll see this used later. 8)
-  class(*), pointer :: generic_pointer
+  type(c_ptr) :: raw_c_ptr
+  type(thread_data_out_example), pointer :: pointer_data
 
 
   !* The first step is very simple, you must initialize the library.
@@ -183,24 +184,17 @@ program thread_example
     do while (thread_await_all_thread_completion())
     end do
 
+    print*,"hi"
+
 
     !* Let's grab that data that the threads output!
-    do while(output_queue%pop(generic_pointer))
-      select type(generic_pointer)
+    do while(output_queue%pop(raw_c_ptr))
+      call c_f_pointer(raw_c_ptr, pointer_data)
 
-       type is (integer(c_int))
-        error stop "WRONG"
-
-       type is (thread_data_out_example)
-        print*,generic_pointer%value
-
-       class default
-        error stop "WRONG"
-
-      end select
+      print*,pointer_data%value
 
       ! Don't forget to deallocate. 8)
-      deallocate(generic_pointer)
+      deallocate(pointer_data)
     end do
 
   end do
