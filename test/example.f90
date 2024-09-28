@@ -88,7 +88,6 @@ contains
     !* This is the concurrent FIFO queue.
     !* With the redesign, I recommend you use stack variables.
     !* The derived type can contain fortran pointers. 8)
-    
     output%value = some_cool_data%a_number
     call some_cool_data%output%push(output)
 
@@ -96,12 +95,10 @@ contains
     !* You must remember: We are working in manual memory management.
     !* In this specific scenario, all we have to do is free the cool data.
     !* But it might get much more complex depending on what you're doing.
-
     deallocate(some_cool_data)
 
 
     !* Remember that void pointer?
-
     void_pointer = c_null_ptr
 
 
