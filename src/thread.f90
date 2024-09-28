@@ -147,16 +147,16 @@ contains
 
   !* Create a new joinable thread.
   !* Returns you the thread struct.
-  function create_joinable(subroutine_c_funptr, argument_ptr) result(new_joinable_thread) bind(c)
+  function create_joinable(subroutine_c_funptr, argument_ptr) result(tid) bind(c)
     use :: internal_temp_string
     implicit none
 
     type(c_funptr), intent(in), value :: subroutine_c_funptr
     type(c_ptr), intent(in), value :: argument_ptr
-    type(pthread_t) :: new_joinable_thread
+    integer(c_int64_t) :: tid
     integer(c_int) :: status
 
-    status = internal_pthread_create(new_joinable_thread, c_null_ptr, subroutine_c_funptr, argument_ptr)
+    status = internal_for_p_thread_create_thread(tid, c_null_ptr, subroutine_c_funptr, argument_ptr)
 
     if (status /= THREAD_OK) then
       error stop "[Thread] Error: Failed to create a joinable thread. Error status: ["//int_to_string(status)//"]"
