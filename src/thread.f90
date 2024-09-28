@@ -85,7 +85,6 @@ contains
 
     allocate(available_threads(CPU_THREADS))
     allocate(thread_arguments(CPU_THREADS))
-
     allocate(thread_active(CPU_THREADS))
 
     do i = 1,CPU_THREADS
@@ -107,7 +106,7 @@ contains
     integer(c_int64_t) :: tid
     integer(c_int) :: status
 
-    status = internal_for_p_thread_create_thread(tid, c_null_ptr, subroutine_c_funptr, argument_ptr)
+    status = internal_for_p_thread_create_thread(tid, subroutine_c_funptr, argument_ptr)
 
     if (status /= THREAD_OK) then
       error stop "[Thread] Error: Failed to create a joinable thread. Error status: ["//int_to_string(status)//"]"
