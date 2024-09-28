@@ -20,15 +20,14 @@ module thread_filo_queue_linked
     private
     type(queue_node), pointer :: head => null()
     type(queue_node), pointer :: tail => null()
-    type(mutex_rwlock), pointer :: mutex => null()
-    type(c_ptr) :: c_mutex_pointer = c_null_ptr
+    type(c_ptr) :: mutex_pointer = c_null_ptr
     integer(c_int) :: items = 0
   contains
     procedure :: push => concurrent_linked_filo_queue_push
     procedure :: pop => concurrent_linked_filo_queue_pop
     procedure :: destroy => concurrent_linked_filo_queue_destroy
     procedure :: is_empty => concurrent_linked_filo_queue_is_empty
-    procedure :: get_size => concurrent_linked_filo_queue_get_size
+    procedure :: size => concurrent_linked_filo_queue_get_size
   end type concurrent_linked_filo_queue
 
 
@@ -45,8 +44,7 @@ contains
 
     type(concurrent_linked_filo_queue) :: new_queue
 
-    new_queue%mutex => thread_create_mutex_pointer()
-    new_queue%c_mutex_pointer = c_loc(new_queue%mutex)
+    new_queue%mutex_pointer = internal_for_p_thread_create_mutex()
   end function constructor_concurrent_linked_filo_queue
 
 
