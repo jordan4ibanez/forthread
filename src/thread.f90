@@ -96,12 +96,12 @@ module thread
 !* BEGIN FUNCTION BLUEPRINTS.
 
 
-    recursive function thread_function_c_interface(raw_c_arg_ptr) result(void_pointer) bind(c)
+    recursive function thread_function_c_interface(raw_c_arg_ptr) result(void_ptr) bind(c)
       use, intrinsic :: iso_c_binding
       implicit none
 
       type(c_ptr), intent(in), value :: raw_c_arg_ptr
-      type(c_ptr) :: void_pointer
+      type(c_ptr) :: void_ptr
     end function thread_function_c_interface
 
 
@@ -239,7 +239,7 @@ contains
         translator_bool = .true.
         thread_active(thread_to_use) = translator_bool
 
-        thread_arguments(thread_to_use)%mutex_pointer = module_mutex
+        thread_arguments(thread_to_use)%mutex_ptr = module_mutex
 
         status = thread_unlock_lock(module_mutex)
 

@@ -107,13 +107,13 @@ contains
     !* You will be talking straight to the library during this.
 
     !* Lock the master mutex.
-    status = thread_write_lock(argument_pointer%mutex_pointer)
+    status = thread_write_lock(argument_pointer%mutex_ptr)
 
     !* This is a pointer into the thread library to say: "this thread finished"
     argument_pointer%active_flag = .false.
 
     !* Finally, unlock the mutex.
-    status = thread_unlock_lock(argument_pointer%mutex_pointer)
+    status = thread_unlock_lock(argument_pointer%mutex_ptr)
 
     !* This thread has completed. :)
   end function thread_worker_thing
