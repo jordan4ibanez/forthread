@@ -27,13 +27,6 @@ module thread_types
     type(c_ptr) :: mutex_pointer = c_null_ptr
   end type thread_argument
 
-
-  ! mutex_rwlock.
-  type :: mutex_rwlock
-    integer(1), dimension(:), pointer :: raw_data_pointer => null()
-  end type mutex_rwlock
-
-
 !* for_p_thread.
 
   interface
