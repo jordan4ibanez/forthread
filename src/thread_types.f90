@@ -27,6 +27,7 @@ module thread_types
     type(c_ptr) :: mutex_pointer = c_null_ptr
   end type thread_argument
 
+
 !* for_p_thread.
 
   interface
