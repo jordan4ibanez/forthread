@@ -57,7 +57,7 @@ contains
     integer(c_int) :: status
     type(queue_node), pointer :: new_node
 
-    status = thread_write_lock(this%c_mutex_pointer)
+    status = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     allocate(new_node)
@@ -81,7 +81,7 @@ contains
     this%items = this%items + 1
 
     !! END SAFE OPERATION.
-    status = thread_unlock_lock(this%c_mutex_pointer)
+    status = thread_unlock_lock(this%mutex_pointer)
   end subroutine concurrent_linked_filo_queue_push
 
 
@@ -95,7 +95,7 @@ contains
     integer(c_int) :: status
     type(queue_node), pointer :: next_pointer
 
-    status = thread_write_lock(this%c_mutex_pointer)
+    status = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     some = .false.
@@ -127,7 +127,7 @@ contains
     end if
 
     !! END SAFE OPERATION.
-    status = thread_unlock_lock(this%c_mutex_pointer)
+    status = thread_unlock_lock(this%mutex_pointer)
   end function concurrent_linked_filo_queue_pop
 
 
@@ -140,7 +140,7 @@ contains
     type(queue_node), pointer :: current, next
     integer(c_int) :: status
 
-    status = thread_write_lock(this%c_mutex_pointer)
+    status = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     if (associated(this%head)) then
@@ -168,7 +168,7 @@ contains
     this%items = 0
 
     !! END SAFE OPERATION.
-    status = thread_unlock_lock(this%c_mutex_pointer)
+    status = thread_unlock_lock(this%mutex_pointer)
   end subroutine concurrent_linked_filo_queue_destroy
 
 
@@ -180,13 +180,13 @@ contains
     logical(c_bool) :: empty
     integer(c_int) :: status
 
-    status = thread_write_lock(this%c_mutex_pointer)
+    status = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     empty = this%items == 0
 
     !! END SAFE OPERATION.
-    status = thread_unlock_lock(this%c_mutex_pointer)
+    status = thread_unlock_lock(this%mutex_pointer)
   end function concurrent_linked_filo_queue_is_empty
 
 
@@ -198,13 +198,13 @@ contains
     integer(c_int) :: item_count
     integer(c_int) :: status
 
-    status = thread_write_lock(this%c_mutex_pointer)
+    status = thread_write_lock(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     item_count = this%items
 
     !! END SAFE OPERATION.
-    status = thread_unlock_lock(this%c_mutex_pointer)
+    status = thread_unlock_lock(this%mutex_pointer)
   end function concurrent_linked_filo_queue_get_size
 
 
