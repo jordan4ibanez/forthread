@@ -165,15 +165,15 @@ contains
 
 
   !* Join a thread back into the main thread.
-  subroutine thread_join(joinable_thread, return_val_c_ptr) bind(c)
+  subroutine thread_join(tid, return_val_c_ptr) bind(c)
     use :: internal_temp_string
     implicit none
 
-    type(pthread_t), intent(in), value :: joinable_thread
+    integer(c_int64_t), intent(in), value :: tid
     type(c_ptr), intent(in), value :: return_val_c_ptr
     integer(c_int) :: status
 
-    status = internal_pthread_join(joinable_thread%tid, return_val_c_ptr)
+    status = internal_pthread_join(tid, return_val_c_ptr)
 
     if (status /= THREAD_OK) then
       error stop "[Forthread] Error: Tried to join non-existent joinable_thread! Error status: ["//int_to_string(status)//"]"
