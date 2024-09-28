@@ -3,7 +3,7 @@
 module thread
   use :: thread_types
   use :: thread_mutex
-  use :: thread_filo_queue_linked
+  use :: thread_fifo_queue_linked
   use, intrinsic :: iso_c_binding
   implicit none
 

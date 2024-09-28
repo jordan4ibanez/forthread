@@ -1,6 +1,6 @@
 module thread_fifo_queue_linked
-  use :: thread_types
   use :: thread_mutex
+  use :: fifo_queue
   use, intrinsic :: iso_c_binding
   implicit none
 
