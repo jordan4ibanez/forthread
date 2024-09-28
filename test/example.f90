@@ -85,12 +85,12 @@ contains
 
     !* Well, we also got sent in that pointer, let's output some data to it.
     !? Also, very important note:
-    !* This is the concurrent FILO queue. You must ensure that your data you push into it
-    !* is a pointer or else it will be extremely undefined behavior.
-
-    ! allocate(output)
-    ! output%value = some_cool_data%a_number
-    ! call some_cool_data%output%push(output)
+    !* This is the concurrent FIFO queue.
+    !* With the redesign, I recommend you use stack variables.
+    !* The derived type can contain fortran pointers. 8)
+    
+    output%value = some_cool_data%a_number
+    call some_cool_data%output%push(output)
 
 
     !* You must remember: We are working in manual memory management.
