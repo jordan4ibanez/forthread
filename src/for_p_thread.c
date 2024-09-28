@@ -10,6 +10,12 @@
 // You can ctrl - click this to get there.
 // int test = ENOENT;
 
+// Forward declaration.
+pthread_mutex_t *for_p_thread_create_mutex();
+void for_p_thread_destroy_mutex(pthread_mutex_t *mutex);
+uint64_t for_p_thread_create_thread(void *(*start_routine)(void *), void *restrict arg);
+size_t for_p_thread_get_cpu_threads(bool leave_room_for_main);
+
 //! TODO: Needs to be tested on FreeBSD.
 
 /**
@@ -39,6 +45,24 @@ void for_p_thread_destroy_mutex(pthread_mutex_t *mutex)
   }
 
   free(mutex);
+}
+
+/**
+ * Create thread TID pointer.
+ */
+uint64_t for_p_thread_create_thread(void *(*start_routine)(void *), void *restrict arg)
+{
+  // In POSIX, pthread_t IS the thread ID.
+  // This is of size_t. Since I only target 64 bit, it's 8 bytes wide.
+  uint64_t tid = 0;
+
+  // If it fails to create, bail out.
+  if (pthread_create(&tid, NULL, start_routine, arg) != 0)
+  {
+    assert(false);
+  }
+
+  return tid;
 }
 
 /**
