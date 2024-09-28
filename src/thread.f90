@@ -70,7 +70,6 @@ module thread
 
 
     function internal_for_p_thread_create_thread(attr, start_routine, arg) result(tid) bind(c, name = "for_p_thread_create_thread")
-      use :: thread_types
       use, intrinsic :: iso_c_binding
       implicit none
 
@@ -83,12 +82,11 @@ module thread
     end function internal_for_p_thread_create_thread
 
 
-    function internal_pthread_join(thread, retval) result(status) bind(c, name = "pthread_join")
-      use :: thread_types
+    function internal_pthread_join(tid, retval) result(status) bind(c, name = "pthread_join")
       use, intrinsic :: iso_c_binding
       implicit none
 
-      integer(c_int64_t), intent(in), value :: thread
+      integer(c_int64_t), intent(in), value :: tid
       type(c_ptr), intent(in), value :: retval
       integer(c_int) :: status
     end function internal_pthread_join
