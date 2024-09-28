@@ -3,17 +3,6 @@ module thread_types
   implicit none
 
 
-  ! Raw thread struct.
-  ! https://ffmpeg.org/doxygen/3.1/os2threads_8h_source.html
-  !! THIS THING IS A MESS! REMOVE IT!
-  type, bind(c) :: pthread_t
-    integer(c_int64_t) :: tid = 0_8
-    type(c_funptr) :: start_routine
-    type(c_ptr) :: arg
-    type(c_ptr) :: result
-  end type pthread_t
-
-
   ! A raw thread queue element.
   type :: thread_queue_element
     type(c_funptr) :: function_ptr = c_null_funptr
