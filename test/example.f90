@@ -147,11 +147,6 @@ program thread_example
   !* Since we are using pure calculations, use all available threads.
   call thread_initialize(.false.)
 
-  if (.true.) then
-    return
-  end if
-
-
   !* Initialize the output queue.
   output_queue = concurrent_fifo_queue()
 
