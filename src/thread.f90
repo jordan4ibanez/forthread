@@ -28,8 +28,6 @@ module thread
   ! 3.) thread_process_detached_thread()
   ! Will delete old thread attributes.
   ! Passes required data pointers into slots.
-  !
-  !
 
 
   private
@@ -37,7 +35,6 @@ module thread
   public :: pthread_t
   public :: thread_argument
   public :: thread_queue_element
-  public :: mutex_rwlock
   public :: concurrent_fifo_queue
 
   public :: thread_write_lock
