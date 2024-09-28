@@ -79,7 +79,7 @@ contains
 
     print*,"hello from thread", some_cool_data%a_number, "the string is: "//some_cool_data%a_string
 
-    !
+    !* The string is a pointer, free it!
     deallocate(some_cool_data%a_string)
 
 
