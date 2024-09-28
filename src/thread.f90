@@ -252,7 +252,7 @@ contains
         deallocate(new_element)
 
         ! Clean up old thread data.
-        if (available_threads(thread_to_use)%tid /= 0) then
+        if (available_threads(thread_to_use) /= 0) then
           call thread_join(available_threads(thread_to_use), c_null_ptr)
         end if
 
