@@ -18,7 +18,7 @@ pthread_mutex_t *for_p_thread_create_mutex()
   pthread_mutex_t *mutex = malloc(sizeof(pthread_mutex_t));
 
   // If this returns anything but 0, bail out.
-  if (pthread_mutex_init(mutex, NULL))
+  if (pthread_mutex_init(mutex, NULL) != 0)
   {
     assert(false);
   }
