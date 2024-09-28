@@ -35,7 +35,7 @@ contains
     type(concurrent_fifo_queue) :: new_queue
 
     new_queue%i_queue = new_fifo_queue(data_size)
-    new_queue%mutex_pointer = internal_for_p_thread_create_mutex()
+    new_queue%mutex_pointer = thread_create_mutex()
   end function new_concurrent_fifo_queue
 
 
@@ -86,7 +86,7 @@ contains
     class(concurrent_fifo_queue), intent(inout) :: this
 
     call this%i_queue%destroy()
-    call internal_for_p_thread_destroy_mutex(this%mutex_pointer)
+    call thread_destroy_mutex(this%mutex_pointer)
 
   end subroutine concurrent_fifo_queue_destroy
 
