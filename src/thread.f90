@@ -38,7 +38,7 @@ module thread
   public :: thread_argument
   public :: thread_queue_element
   public :: mutex_rwlock
-  public :: concurrent_linked_filo_queue
+  public :: concurrent_filo_queue
 
   public :: thread_write_lock
   public :: thread_read_lock
@@ -63,7 +63,7 @@ module thread
   type(thread_argument), dimension(:), pointer :: thread_arguments
   logical(c_bool), dimension(:), pointer :: thread_active
 
-  type(concurrent_linked_filo_queue) :: master_thread_queue
+  type(concurrent_filo_queue) :: master_thread_queue
 
 
   interface
@@ -142,7 +142,7 @@ contains
       thread_active(i) = .false.
     end do
 
-    master_thread_queue = concurrent_linked_filo_queue()
+    master_thread_queue = concurrent_filo_queue()
   end subroutine thread_initialize
 
 

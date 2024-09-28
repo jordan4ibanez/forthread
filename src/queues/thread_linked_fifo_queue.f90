@@ -8,52 +8,42 @@ module thread_fifo_queue_linked
   private
 
 
-  public :: concurrent_linked_filo_queue
+  public :: concurrent_filo_queue
 
 
-  type :: queue_node
-    class(queue_node), pointer :: next => null()
-    class(*), pointer :: data => null()
-  end type queue_node
-
-
-  type :: concurrent_linked_filo_queue
+  !* An concurrent shell for fifo_queue.
+  type :: concurrent_filo_queue
     private
-    type(queue_node), pointer :: head => null()
-    type(queue_node), pointer :: tail => null()
+    type(fifo) :: i_queue
     type(c_ptr) :: mutex_pointer = c_null_ptr
-    integer(c_int) :: items = 0
   contains
     procedure :: push => concurrent_linked_filo_queue_push
     procedure :: pop => concurrent_linked_filo_queue_pop
     procedure :: destroy => concurrent_linked_filo_queue_destroy
     procedure :: is_empty => concurrent_linked_filo_queue_is_empty
     procedure :: size => concurrent_linked_filo_queue_get_size
-  end type concurrent_linked_filo_queue
-
-
-  interface concurrent_linked_filo_queue
-    module procedure :: constructor_concurrent_linked_filo_queue
-  end interface concurrent_linked_filo_queue
+  end type concurrent_filo_queue
 
 
 contains
 
 
-  function constructor_concurrent_linked_filo_queue() result(new_queue)
+  function new_concurrent_linked_fifo_queue(data_size) result(new_queue)
     implicit none
 
-    type(concurrent_linked_filo_queue) :: new_queue
+    integer(c_size_t), intent(in), value :: data_size
+    type(concurrent_filo_queue) :: new_queue
 
+    new_queue%i_queue = new_fifo_queue(data_size)
     new_queue%mutex_pointer = internal_for_p_thread_create_mutex()
-  end function constructor_concurrent_linked_filo_queue
+  end function new_concurrent_linked_fifo_queue
 
 
   !* Push an element into the end of a queue.
   subroutine concurrent_linked_filo_queue_push(this, generic_pointer)
     implicit none
 
-    class(concurrent_linked_filo_queue), intent(inout) :: this
+    class(concurrent_filo_queue), intent(inout) :: this
     class(*), intent(in), target :: generic_pointer
     integer(c_int) :: discard
     type(queue_node), pointer :: new_node
@@ -90,7 +80,7 @@ contains
   function concurrent_linked_filo_queue_pop(this, generic_pointer_option) result(some)
     implicit none
 
-    class(concurrent_linked_filo_queue), intent(inout) :: this
+    class(concurrent_filo_queue), intent(inout) :: this
     class(*), intent(inout), pointer :: generic_pointer_option
     logical(c_bool) :: some
     integer(c_int) :: discard
@@ -137,7 +127,7 @@ contains
   subroutine concurrent_linked_filo_queue_destroy(this)
     implicit none
 
-    class(concurrent_linked_filo_queue), intent(inout) :: this
+    class(concurrent_filo_queue), intent(inout) :: this
     type(queue_node), pointer :: current, next
     integer(c_int) :: discard
 
@@ -177,7 +167,7 @@ contains
   function concurrent_linked_filo_queue_is_empty(this) result(empty)
     implicit none
 
-    class(concurrent_linked_filo_queue), intent(inout) :: this
+    class(concurrent_filo_queue), intent(inout) :: this
     logical(c_bool) :: empty
     integer(c_int) :: discard
 
@@ -195,7 +185,7 @@ contains
   function concurrent_linked_filo_queue_get_size(this) result(item_count)
     implicit none
 
-    class(concurrent_linked_filo_queue), intent(inout) :: this
+    class(concurrent_filo_queue), intent(inout) :: this
     integer(c_int) :: item_count
     integer(c_int) :: discard
 

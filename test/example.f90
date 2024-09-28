@@ -13,7 +13,7 @@ module an_example_thread_module
     integer(c_int) :: a_number
     character(len = :, kind = c_char), allocatable :: a_string
     !* This one is a bit special, it'll make sense as you read.
-    type(concurrent_linked_filo_queue), pointer :: output
+    type(concurrent_filo_queue), pointer :: output
   end type thread_data_in_example
 
 
@@ -134,7 +134,7 @@ program thread_example
   type(thread_data_in_example), pointer :: sending_data
 
   !* We will create a concurrent FILO queue for the threads to output to.
-  type(concurrent_linked_filo_queue), target :: output_queue
+  type(concurrent_filo_queue), target :: output_queue
 
   !* You'll see this used later. 8)
   class(*), pointer :: generic_pointer
@@ -153,7 +153,7 @@ program thread_example
 
 
   !* Initialize the output queue.
-  output_queue = concurrent_linked_filo_queue()
+  output_queue = concurrent_filo_queue()
 
   !* We'll make this an infinite loop because that's cool.
   do
