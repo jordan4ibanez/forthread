@@ -46,6 +46,7 @@ size_t for_p_thread_get_cpu_threads(bool leave_room_for_main)
   size_t thread_count = (size_t)sysconf(_SC_NPROCESSORS_ONLN);
   if (leave_room_for_main)
   {
+    // In case you're running this on your AMD Thunderbird.
     thread_count = thread_count - 1;
     if (thread_count == 0)
     {
