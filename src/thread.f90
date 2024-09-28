@@ -42,8 +42,8 @@ module thread
   public :: thread_unlock_lock
 
   public :: thread_initialize
-  public :: thread_create_mutex_pointer
-  public :: thread_destroy_mutex_pointer
+  public :: thread_create_mutex
+  public :: thread_destroy_mutex
   public :: thread_create
   public :: thread_process_thread_queue
   public :: thread_queue_is_empty
@@ -54,7 +54,7 @@ module thread
 
   integer(c_int) :: CPU_THREADS = 0
 
-  type(mutex_rwlock), pointer :: module_mutex
+  type(c_ptr) :: module_mutex
 
   type(pthread_t), dimension(:), pointer :: available_threads
   type(thread_argument), dimension(:), pointer :: thread_arguments
@@ -127,8 +127,8 @@ contains
 
     CPU_THREADS = for_p_thread_get_cpu_threads(logical(leave_room_for_main, kind = c_bool))
 
-    allocate(module_mutex)
-    module_mutex => thread_create_mutex_pointer()
+
+    module_mutex = thread_create_mutex()
 
     allocate(available_threads(CPU_THREADS))
     allocate(thread_arguments(CPU_THREADS))
@@ -199,7 +199,8 @@ contains
   subroutine thread_process_thread_queue()
     implicit none
 
-    integer(c_int) :: queue_size, i, thread_to_use, status
+    integer(c_size_t) :: queue_size, i
+    integer(c_int) :: thread_to_use, status
     class(*), pointer :: generic_pointer
     type(thread_queue_element), pointer :: new_element
     logical(c_bool) :: translator_bool
@@ -209,7 +210,7 @@ contains
       return
     end if
 
-    queue_size = master_thread_queue%get_size()
+    queue_size = master_thread_queue%count()
 
     ! Don't attempt to go past available threads.
     if (queue_size > CPU_THREADS) then
