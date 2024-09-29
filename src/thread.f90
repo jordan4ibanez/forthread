@@ -87,6 +87,12 @@ contains
     allocate(thread_arguments(CPU_THREADS))
     allocate(thread_active(CPU_THREADS))
 
+    ! Very important: Initialize memory.
+
+    do i = 1,CPU_THREADS
+      available_threads(i) = 0
+    end do
+
     do i = 1,CPU_THREADS
       thread_active(i) = .false.
     end do
