@@ -40,9 +40,10 @@ module thread
   public :: thread_queue_element
   public :: concurrent_fifo_queue
 
-  public :: thread_write_lock
-  public :: thread_read_lock
-  public :: thread_unlock_lock
+  public :: thread_create_mutex
+  public :: thread_destroy_mutex
+  public :: thread_lock_mutex
+  public :: thread_unlock_mutex
 
   public :: thread_initialize
   public :: thread_destroy
@@ -205,13 +206,13 @@ contains
         call c_f_pointer(raw_c_ptr, new_element)
 
         ! Set the completion flag.
-        status = thread_write_lock(module_mutex)
+        status = thread_lock_mutex(module_mutex)
 
         thread_active(thread_to_use) = .true.
 
         thread_arguments(thread_to_use)%mutex_ptr = module_mutex
 
-        status = thread_unlock_lock(module_mutex)
+        status = thread_unlock_mutex(module_mutex)
 
         ! Set the raw data to send.
         thread_arguments(thread_to_use)%active_flag => thread_active(thread_to_use)
@@ -246,18 +247,18 @@ contains
 
     thread_index = 0
 
-    discard = thread_read_lock(module_mutex)
+    discard = thread_lock_mutex(module_mutex)
 
     do i = 1,CPU_THREADS
       if (.not. thread_active(i)) then
         thread_index = i
         ! print*,"thread ", i, "free"
-        ! status = thread_unlock_lock(c_loc(thread_mutex))
+        ! status = thread_unlock_mutex(c_loc(thread_mutex))
         exit
       end if
     end do
 
-    discard = thread_unlock_lock(module_mutex)
+    discard = thread_unlock_mutex(module_mutex)
   end function find_free_thread
 
 
@@ -281,16 +282,16 @@ contains
 
     keep_going = .true.
 
-    status = thread_read_lock(module_mutex)
+    status = thread_lock_mutex(module_mutex)
 
     do i = 1,CPU_THREADS
       if (thread_active(i)) then
-        status = thread_unlock_lock(module_mutex)
+        status = thread_unlock_mutex(module_mutex)
         return
       end if
     end do
 
-    status = thread_unlock_lock(module_mutex)
+    status = thread_unlock_mutex(module_mutex)
 
     keep_going = .false.
   end function thread_await_all_thread_completion
