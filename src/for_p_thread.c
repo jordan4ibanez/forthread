@@ -51,7 +51,7 @@ int for_p_thread_create_thread(int64_t *tid, void *(*start_routine)(void *), voi
   // This is of size_t. Since I only target 64 bit, it's 8 bytes wide.
 
   // Return status.
-  return pthread_create((void *)tid, NULL, start_routine, arg);
+  return pthread_create(tid, NULL, start_routine, arg);
 }
 
 /**
