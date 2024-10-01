@@ -61,7 +61,6 @@ module thread
 
   type(c_ptr) :: module_mutex
 
-  integer(c_int64_t), dimension(:), pointer :: available_threads
   type(thread_argument), dimension(:), pointer :: thread_arguments
   logical(c_bool), dimension(:), pointer :: thread_active
 
@@ -84,15 +83,10 @@ contains
 
     module_mutex = thread_create_mutex()
 
-    allocate(available_threads(CPU_THREADS))
     allocate(thread_arguments(CPU_THREADS))
     allocate(thread_active(CPU_THREADS))
 
     ! Very important: Initialize memory.
-
-    do i = 1,CPU_THREADS
-      available_threads(i) = 0
-    end do
 
     do i = 1,CPU_THREADS
       thread_active(i) = .false.
@@ -109,7 +103,6 @@ contains
     do while (thread_await_all_thread_completion())
     end do
 
-    deallocate(available_threads)
     deallocate(thread_arguments)
     deallocate(thread_active)
 
@@ -177,7 +170,7 @@ contains
   subroutine thread_process_thread_queue()
     implicit none
 
-    integer(c_size_t) :: queue_size, i
+    integer(c_size_t) :: queue_size, i, discard
     integer(c_int) :: thread_to_use, status
     type(c_ptr) :: raw_c_ptr
     type(thread_queue_element), pointer :: new_element
@@ -227,7 +220,7 @@ contains
         deallocate(new_element)
 
         ! Fire off the thread.
-        available_threads(thread_to_use) = create_detached(function_ptr, c_loc(thread_arguments(thread_to_use)))
+        discard = create_detached(function_ptr, c_loc(thread_arguments(thread_to_use)))
       else
         ! Nothing left to get.
         exit
