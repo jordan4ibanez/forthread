@@ -202,7 +202,7 @@ program thread_example
   do while(output_queue%pop(raw_c_ptr))
     call c_f_pointer(raw_c_ptr, pointer_data)
 
-    ! print*,pointer_data%value
+    print*,pointer_data%value
 
     ! Don't forget to deallocate. 8)
     deallocate(pointer_data)
