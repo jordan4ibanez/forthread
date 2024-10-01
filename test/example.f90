@@ -213,5 +213,7 @@ program thread_example
   !* Clean up the module.
   call thread_destroy()
 
+  call output_queue%destroy()
+
 
 end program thread_example
