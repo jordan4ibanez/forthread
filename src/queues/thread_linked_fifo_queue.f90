@@ -48,13 +48,13 @@ contains
     class(*), intent(in), target :: generic
     integer(c_int) :: discard
 
-    discard = thread_write_lock(this%mutex_pointer)
+    discard = thread_lock_mutex(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     call this%i_queue%push(generic)
 
     !! END SAFE OPERATION.
-    discard = thread_unlock_lock(this%mutex_pointer)
+    discard = thread_unlock_mutex(this%mutex_pointer)
   end subroutine concurrent_fifo_queue_push
 
 
@@ -67,13 +67,13 @@ contains
     logical(c_bool) :: exists
     integer(c_int) :: discard
 
-    discard = thread_write_lock(this%mutex_pointer)
+    discard = thread_lock_mutex(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     exists = this%i_queue%pop(raw_c_ptr)
 
     !! END SAFE OPERATION.
-    discard = thread_unlock_lock(this%mutex_pointer)
+    discard = thread_unlock_mutex(this%mutex_pointer)
   end function concurrent_fifo_queue_pop
 
 
@@ -100,13 +100,13 @@ contains
     integer(c_size_t) :: count
     integer(c_int) :: discard
 
-    discard = thread_write_lock(this%mutex_pointer)
+    discard = thread_lock_mutex(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     count = this%i_queue%count()
 
     !! END SAFE OPERATION.
-    discard = thread_unlock_lock(this%mutex_pointer)
+    discard = thread_unlock_mutex(this%mutex_pointer)
   end function concurrent_fifo_queue_get_count
 
 
@@ -118,13 +118,13 @@ contains
     logical(c_bool) :: empty
     integer(c_int) :: discard
 
-    discard = thread_write_lock(this%mutex_pointer)
+    discard = thread_lock_mutex(this%mutex_pointer)
     !! BEGIN SAFE OPERATION.
 
     empty = this%i_queue%is_empty()
 
     !! END SAFE OPERATION.
-    discard = thread_unlock_lock(this%mutex_pointer)
+    discard = thread_unlock_mutex(this%mutex_pointer)
   end function concurrent_fifo_queue_is_empty
 
 
