@@ -84,6 +84,7 @@ contains
     call random_seed()
     call random_number(randomness)
 
+    ! This is utilizing the randomness of the OS task scheduler.
     do i = 1,floor(randomness * 10000)
       call sleep(0)
     end do
