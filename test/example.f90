@@ -51,6 +51,9 @@ contains
     !* This is the data we expect to get in this thread.
     type(thread_data_in_example), pointer :: some_cool_data
 
+    !* We will make the threads run completely out of order using this.
+    real(c_double) :: randomness
+
 
     !* I suppose we will get into this now.
 
@@ -73,6 +76,12 @@ contains
 
     call c_f_pointer(argument_pointer%data, some_cool_data)
 
+
+    !* Add some randomness into how the threads act.
+
+    call random_seed()
+    call random_number(randomness)
+    call sleep(floor(randomness + 0.5))
 
     !* And now we have it. 8)
     !* So let's print it out.
