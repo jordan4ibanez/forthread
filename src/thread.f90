@@ -45,6 +45,7 @@ module thread
   public :: thread_unlock_lock
 
   public :: thread_initialize
+  public :: thread_destroy
   public :: thread_create_mutex
   public :: thread_destroy_mutex
   public :: thread_create
@@ -99,6 +100,22 @@ contains
 
     master_thread_queue = new_concurrent_fifo_queue(sizeof(thread_queue_element()))
   end subroutine thread_initialize
+
+
+  !* Clean up the module.
+  subroutine thread_destroy()
+    implicit none
+
+
+    do while (thread_await_all_thread_completion())
+    end do
+
+    deallocate(available_threads)
+    deallocate(thread_arguments)
+    deallocate(thread_active)
+
+    call thread_destroy_mutex(module_mutex)
+  end subroutine thread_destroy
 
 
   !* Create a new joinable thread.
@@ -160,7 +177,6 @@ contains
     integer(c_int) :: thread_to_use, status
     type(c_ptr) :: raw_c_ptr
     type(thread_queue_element), pointer :: new_element
-    logical(c_bool) :: translator_bool
     type(c_funptr) :: function_ptr
 
     if (master_thread_queue%is_empty()) then
@@ -191,8 +207,7 @@ contains
         ! Set the completion flag.
         status = thread_write_lock(module_mutex)
 
-        translator_bool = .true.
-        thread_active(thread_to_use) = translator_bool
+        thread_active(thread_to_use) = .true.
 
         thread_arguments(thread_to_use)%mutex_ptr = module_mutex
 
