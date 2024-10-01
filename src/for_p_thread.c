@@ -10,12 +10,6 @@
 // You can ctrl - click this to get there.
 // int test = ENOENT;
 
-// Forward declaration.
-pthread_mutex_t *for_p_thread_create_mutex();
-void for_p_thread_destroy_mutex(pthread_mutex_t *mutex);
-int for_p_thread_create_thread(int64_t *tid, void *(*start_routine)(void *), void *restrict arg);
-size_t for_p_thread_get_cpu_threads(bool leave_room_for_main);
-
 //! TODO: Needs to be tested on FreeBSD.
 
 /**
