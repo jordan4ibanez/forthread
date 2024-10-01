@@ -169,7 +169,7 @@ program thread_example
   !* Don't have 1024 cpu cores? No problem! That's why we have RAM. 8)
   !! An extremely important note:
   !* If you create too many threads in one shot, the Linux arena heap will try to hold onto memory.
-  do i = 1,2
+  do i = 1,1024
 
     !* Reallocate the pointer every loop.
     allocate(sending_data)
