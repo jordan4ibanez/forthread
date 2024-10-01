@@ -52,6 +52,7 @@ contains
     type(thread_data_in_example), pointer :: some_cool_data
 
     !* We will make the threads run completely out of order using this.
+    integer(c_int) :: i
     real(c_double) :: randomness
 
 
@@ -78,10 +79,15 @@ contains
 
 
     !* Add some randomness into how the threads act.
+    !* You'll see them print out of order with this.
 
     call random_seed()
     call random_number(randomness)
-    call sleep(floor(randomness + 0.5))
+
+    do i = 1,floor(randomness * 10000)
+      call sleep(0)
+    end do
+
 
     !* And now we have it. 8)
     !* So let's print it out.
