@@ -36,14 +36,6 @@ module thread_bindings
     end function for_p_thread_get_cpu_threads
 
 
-    function for_p_thread_get_pthread_mutex_t_width() result(data_width) bind(c, name = "for_p_thread_get_pthread_mutex_t_width")
-      use, intrinsic :: iso_c_binding
-      implicit none
-
-      integer(c_int) :: data_width
-    end function for_p_thread_get_pthread_mutex_t_width
-
-
     !* BEGIN FUNCTION BLUEPRINTS.
 
 
