@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <inttypes.h>
+#include <stdlib.h>
 // This one is for looking up error IDs.
 // #include <errno.h>
 // Go through to <errno-base.h>
