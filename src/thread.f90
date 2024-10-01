@@ -82,7 +82,6 @@ contains
 
     CPU_THREADS = for_p_thread_get_cpu_threads(logical(leave_room_for_main, kind = c_bool))
 
-
     module_mutex = thread_create_mutex()
 
     allocate(available_threads(CPU_THREADS))
@@ -107,7 +106,6 @@ contains
   subroutine thread_destroy()
     implicit none
 
-
     do while (thread_await_all_thread_completion())
     end do
 
@@ -122,19 +120,13 @@ contains
   !* Create a new joinable thread.
   !* Returns you the thread struct.
   function create_joinable(subroutine_c_funptr, argument_ptr) result(tid) bind(c)
-    use :: internal_temp_string
     implicit none
 
     type(c_funptr), intent(in), value :: subroutine_c_funptr
     type(c_ptr), intent(in), value :: argument_ptr
     integer(c_int64_t) :: tid
-    integer(c_int) :: status
 
-    status = internal_for_p_thread_create_thread(tid, subroutine_c_funptr, argument_ptr)
-
-    if (status /= THREAD_OK) then
-      error stop "[Thread] Error: Failed to create a joinable thread. Error status: ["//int_to_string(status)//"]"
-    end if
+    tid = internal_for_p_thread_create_thread(subroutine_c_funptr, argument_ptr, logical(.false., c_bool))
   end function create_joinable
 
 
@@ -153,6 +145,17 @@ contains
       error stop "[Forthread] Error: Tried to join non-existent joinable_thread! Error status: ["//int_to_string(status)//"]"
     end if
   end subroutine thread_join
+
+
+  function create_detached(subroutine_c_funptr, argument_ptr) result(tid) bind(c)
+    implicit none
+
+    type(c_funptr), intent(in), value :: subroutine_c_funptr
+    type(c_ptr), intent(in), value :: argument_ptr
+    integer(c_int64_t) :: tid
+
+    tid = internal_for_p_thread_create_thread(subroutine_c_funptr, argument_ptr, logical(.true., c_bool))
+  end function create_detached
 
 
   !* Queue up a thread to be run.
@@ -223,13 +226,8 @@ contains
         ! Now clean up the shell.
         deallocate(new_element)
 
-        ! Clean up old thread data.
-        if (available_threads(thread_to_use) /= 0) then
-          call thread_join(available_threads(thread_to_use), c_null_ptr)
-        end if
-
         ! Fire off the thread.
-        available_threads(thread_to_use) = create_joinable(function_ptr, c_loc(thread_arguments(thread_to_use)))
+        available_threads(thread_to_use) = create_detached(function_ptr, c_loc(thread_arguments(thread_to_use)))
       else
         ! Nothing left to get.
         exit
