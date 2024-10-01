@@ -107,13 +107,13 @@ contains
     !* You will be talking straight to the library during this.
 
     !* Lock the master mutex.
-    status = thread_write_lock(argument_pointer%mutex_ptr)
+    status = thread_lock_mutex(argument_pointer%mutex_ptr)
 
     !* This is a pointer into the thread library to say: "this thread finished"
     argument_pointer%active_flag = .false.
 
     !* Finally, unlock the mutex.
-    status = thread_unlock_lock(argument_pointer%mutex_ptr)
+    status = thread_unlock_mutex(argument_pointer%mutex_ptr)
 
     !* This thread has completed. :)
   end function thread_worker_thing
@@ -155,7 +155,7 @@ program thread_example
   !* We'll make this an infinite loop because that's cool.
   ! do
 
-  print*,"start"
+  ! print*,"start"
 
   !* Don't have 1024 cpu cores? No problem! That's why we have RAM. 8)
   !! An extremely important note:
