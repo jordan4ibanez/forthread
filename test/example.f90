@@ -153,50 +153,55 @@ program thread_example
   output_queue = new_concurrent_fifo_queue(sizeof(thread_data_out_example(0)))
 
   !* We'll make this an infinite loop because that's cool.
-  do
+  ! do
 
-    !* Don't have 1024 cpu cores? No problem! That's why we have RAM. 8)
-    !! An extremely important note:
-    !* If you create too many threads in one shot, the Linux arena heap will try to hold onto memory.
-    do i = 1,1024
+  print*,"start"
 
-      !* Reallocate the pointer every loop.
-      allocate(sending_data)
-      sending_data%a_number = i
-      allocate(character(len = 3) :: sending_data%a_string)
-      sending_data%a_string = "hi!"
-      ! Yes, this is quite pointy.
-      sending_data%output => output_queue
+  !* Don't have 1024 cpu cores? No problem! That's why we have RAM. 8)
+  !! An extremely important note:
+  !* If you create too many threads in one shot, the Linux arena heap will try to hold onto memory.
+  do i = 1,2
 
-      !* Remember, we are binding to a C library. We must abide by C's rules.
-      call thread_create(thread_worker_thing, c_loc(sending_data))
-    end do
+    !* Reallocate the pointer every loop.
+    allocate(sending_data)
+    sending_data%a_number = i
+    allocate(character(len = 3) :: sending_data%a_string)
+    sending_data%a_string = "hi!"
+    ! Yes, this is quite pointy.
+    sending_data%output => output_queue
 
-    !* I've included a method for you to wait for a huge job to finish. :)
-
-
-    ! Churn through the queue.
-    do while(.not. thread_queue_is_empty())
-      call thread_process_thread_queue()
-    end do
-
-
-    ! Spin while we await all the threads to finish.
-    do while (thread_await_all_thread_completion())
-    end do
-
-
-    !* Let's grab that data that the threads output!
-    do while(output_queue%pop(raw_c_ptr))
-      call c_f_pointer(raw_c_ptr, pointer_data)
-
-      print*,pointer_data%value
-
-      ! Don't forget to deallocate. 8)
-      deallocate(pointer_data)
-    end do
-
+    !* Remember, we are binding to a C library. We must abide by C's rules.
+    call thread_create(thread_worker_thing, c_loc(sending_data))
   end do
+
+  !* I've included a method for you to wait for a huge job to finish. :)
+
+
+  ! Churn through the queue.
+  do while(.not. thread_queue_is_empty())
+    call thread_process_thread_queue()
+  end do
+
+
+  ! Spin while we await all the threads to finish.
+  do while (thread_await_all_thread_completion())
+  end do
+
+
+  !* Let's grab that data that the threads output!
+  do while(output_queue%pop(raw_c_ptr))
+    call c_f_pointer(raw_c_ptr, pointer_data)
+
+    print*,pointer_data%value
+
+    ! Don't forget to deallocate. 8)
+    deallocate(pointer_data)
+  end do
+
+  ! end do
+
+  !* Clean up the module.
+  call thread_destroy()
 
 
 end program thread_example
