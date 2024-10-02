@@ -43,31 +43,6 @@ void for_p_thread_destroy_mutex(pthread_mutex_t *mutex)
 }
 
 /**
- * assign TID
- */
-int64_t for_p_thread_create_thread(void *(*start_routine)(void *), void *restrict arg, bool is_detached)
-{
-  // In POSIX, pthread_t IS the thread ID.
-  // This is of size_t. Since I only target 64 bit, it's 8 bytes wide.
-
-  // Return status.
-  int64_t tid = 0;
-
-  if (pthread_create(&tid, NULL, start_routine, arg) != 0)
-  {
-    assert(false);
-  }
-
-  // printf("detached? %i\n", is_detached);
-  if (is_detached)
-  {
-    pthread_detach(tid);
-  }
-
-  return tid;
-}
-
-/**
  * Get the number of available threads.
  *
  * If leave_room_for_main is true, this will give you N-1 threads.
