@@ -140,6 +140,7 @@ contains
   end subroutine thread_join
 
 
+  !* Create a detached thread.
   function create_detached(subroutine_c_funptr, argument_ptr) result(tid) bind(c)
     use :: internal_temp_string
     implicit none
