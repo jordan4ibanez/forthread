@@ -46,13 +46,13 @@ module thread_bindings
     !* Get the number of CPU threads available on the system.
     !* If [leave_room_for_main] is .true., this will give you [X - 1] threads.
     !* (To leave room for the main thread in the OS scheduler.)
-    function for_p_thread_get_cpu_threads(leave_room_for_main) result(thread_count) bind(c, name = "for_p_thread_get_cpu_threads")
+    function thread_get_cpu_thread_count(leave_room_for_main) result(thread_count) bind(c, name = "for_p_thread_get_cpu_threads")
       use, intrinsic :: iso_c_binding
       implicit none
 
       logical(c_bool), intent(in), value :: leave_room_for_main
       integer(c_int) :: thread_count
-    end function for_p_thread_get_cpu_threads
+    end function thread_get_cpu_thread_count
 
 
 !* BEGIN FUNCTION BLUEPRINTS. =====================================================================================
