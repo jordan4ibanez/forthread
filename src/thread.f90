@@ -132,7 +132,7 @@ contains
     type(c_ptr), intent(in), value :: return_val_c_ptr
     integer(c_int) :: status
 
-    status = internal_pthread_join(tid, return_val_c_ptr)
+    status = pthread_join(tid, return_val_c_ptr)
 
     if (status /= THREAD_OK) then
       error stop "[Forthread] Error: Tried to join non-existent joinable_thread! Error status: ["//int_to_string(status)//"]"
