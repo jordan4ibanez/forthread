@@ -4,6 +4,9 @@ module thread_bindings
 
   interface
 
+    !* The following tid/status docs are reflected upon every pthread binding.
+
+    !* Create a thread.
     function pthread_create(tid, attr, start_routine, arg) result(status) bind(c, name = "pthread_create")
       use, intrinsic :: iso_c_binding
       implicit none
