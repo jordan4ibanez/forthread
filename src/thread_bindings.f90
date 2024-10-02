@@ -32,14 +32,15 @@ module thread_bindings
     end function pthread_detach
 
 
-    function internal_pthread_join(tid, retval) result(status) bind(c, name = "pthread_join")
+    !* Join a thread. (Only needed if thread_detach() is not run.)
+    function pthread_join(tid, retval) result(status) bind(c, name = "pthread_join")
       use, intrinsic :: iso_c_binding
       implicit none
 
       integer(c_int64_t), intent(in), value :: tid
       type(c_ptr), intent(in), value :: retval
       integer(c_int) :: status
-    end function internal_pthread_join
+    end function pthread_join
 
 
     function for_p_thread_get_cpu_threads(leave_room_for_main) result(thread_count) bind(c, name = "for_p_thread_get_cpu_threads")
