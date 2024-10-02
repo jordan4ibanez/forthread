@@ -141,13 +141,25 @@ contains
 
 
   function create_detached(subroutine_c_funptr, argument_ptr) result(tid) bind(c)
+    use :: internal_temp_string
     implicit none
 
     type(c_funptr), intent(in), value :: subroutine_c_funptr
     type(c_ptr), intent(in), value :: argument_ptr
     integer(c_int64_t) :: tid
+    integer(c_int) :: status
 
-    tid = internal_for_p_thread_create_thread(subroutine_c_funptr, argument_ptr, logical(.true., c_bool))
+    status = pthread_create(tid, subroutine_c_funptr, argument_ptr)
+
+    if (status /= 0) then
+      error stop "[Thread] Error: Failed to create a thread. Error status: ["//int_to_string(status)//"]"
+    end if
+
+    status = pthread_detach(tid)
+
+    if (status /= 0) then
+      error stop "[Thread] Error: Failed to detach a thread. Error status: ["//int_to_string(status)//"]"
+    end if
   end function create_detached
 
 
