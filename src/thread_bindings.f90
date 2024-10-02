@@ -22,6 +22,16 @@ module thread_bindings
     end function pthread_create
 
 
+    !* Detach a thread. (Auto clean up pthread [only] C memory upon completion)
+    function pthread_detach(tid) result(status) bind(c, name = "pthread_detach")
+      use, intrinsic :: iso_c_binding
+      implicit none
+
+      integer(c_int64_t), intent(inout) :: tid
+      integer(c_int) :: status
+    end function pthread_detach
+
+
     function internal_pthread_join(tid, retval) result(status) bind(c, name = "pthread_join")
       use, intrinsic :: iso_c_binding
       implicit none
