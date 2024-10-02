@@ -135,7 +135,7 @@ contains
     status = pthread_join(tid, return_val_c_ptr)
 
     if (status /= THREAD_OK) then
-      error stop "[Forthread] Error: Tried to join non-existent joinable_thread! Error status: ["//int_to_string(status)//"]"
+      error stop "[Forthread] Error: Failed to join thread. Error status: ["//int_to_string(status)//"]"
     end if
   end subroutine thread_join
 
