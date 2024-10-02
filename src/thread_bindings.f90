@@ -55,7 +55,7 @@ module thread_bindings
     end function for_p_thread_get_cpu_threads
 
 
-    !* BEGIN FUNCTION BLUEPRINTS.
+!* BEGIN FUNCTION BLUEPRINTS. =====================================================================================
 
 
     recursive function thread_function_c_interface(raw_c_arg_ptr) result(void_ptr) bind(c)
