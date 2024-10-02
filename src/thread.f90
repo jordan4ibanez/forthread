@@ -120,7 +120,7 @@ contains
     integer(c_int64_t) :: tid
     integer(c_int) :: status
 
-    status = pthread_create(tid, subroutine_c_funptr, argument_ptr)
+    status = pthread_create(tid, c_null_ptr, subroutine_c_funptr, argument_ptr)
 
     if (status /= 0) then
       error stop "[Thread] Error: Failed to create a thread. Error status: ["//int_to_string(status)//"]"
@@ -155,7 +155,7 @@ contains
     integer(c_int64_t) :: tid
     integer(c_int) :: status
 
-    status = pthread_create(tid, subroutine_c_funptr, argument_ptr)
+    status = pthread_create(tid, c_null_ptr, subroutine_c_funptr, argument_ptr)
 
     if (status /= 0) then
       error stop "[Thread] Error: Failed to create a thread. Error status: ["//int_to_string(status)//"]"
