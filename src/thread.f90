@@ -79,7 +79,7 @@ contains
     logical, intent(in), value :: leave_room_for_main
     integer(c_int) :: i
 
-    CPU_THREADS = for_p_thread_get_cpu_threads(logical(leave_room_for_main, kind = c_bool))
+    CPU_THREADS = thread_get_cpu_thread_count(logical(leave_room_for_main, kind = c_bool))
 
     module_mutex = thread_create_mutex()
 
