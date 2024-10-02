@@ -4,17 +4,19 @@ module thread_bindings
 
   interface
 
-    function internal_for_p_thread_create_thread(start_routine, arg, is_detached) result(new_tid) bind(c, name = "for_p_thread_create_thread")
+    function pthread_create(tid, attr, start_routine, arg) result(status) bind(c, name = "pthread_create")
       use, intrinsic :: iso_c_binding
       implicit none
 
-      !* Keep in mind: this type is simply a size_t (8 bytes) in POSIX.
-      !* Restricting to 64 bit systems.
+      !* pthread_t is of width 8, uint64_t.
+      !* We are utilizing the fact that the memory layout of the assigned
+      !* TID will not change over the lifetime of the thread.
+      integer(c_int64_t), intent(inout) :: tid
+      type(c_ptr), intent(in), value :: attr, arg
       type(c_funptr), intent(in), value :: start_routine
-      type(c_ptr), intent(in), value :: arg
-      logical(c_bool), intent(in), value :: is_detached
-      integer(c_int) :: new_tid
-    end function internal_for_p_thread_create_thread
+      !* If the status is anything but 0, the thread creation failed.
+      integer(c_int) :: status
+    end function pthread_create
 
 
     function internal_pthread_join(tid, retval) result(status) bind(c, name = "pthread_join")
