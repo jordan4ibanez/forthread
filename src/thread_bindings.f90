@@ -14,7 +14,7 @@ module thread_bindings
       !* pthread_t is of width 8, uint64_t.
       !* We are utilizing the fact that the memory layout of the assigned
       !* TID will not change over the lifetime of the thread.
-      integer(c_int64_t), intent(inout) :: tid
+      integer(c_int64_t), intent(inout), target :: tid
       type(c_ptr), intent(in), value :: attr, arg
       type(c_funptr), intent(in), value :: start_routine
       !* If the status is anything but 0, the thread creation failed.
@@ -27,7 +27,7 @@ module thread_bindings
       use, intrinsic :: iso_c_binding
       implicit none
 
-      integer(c_int64_t), intent(inout) :: tid
+      integer(c_int64_t), intent(in), value :: tid
       integer(c_int) :: status
     end function pthread_detach
 
