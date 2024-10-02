@@ -14,6 +14,18 @@
 //! TODO: Needs to be tested on FreeBSD.
 
 /**
+ * Notes about mutexes:
+ *
+ * Why are we running C code for this?
+ *
+ * We are running C code for this due to the data width of
+ * pthread_mutex_t being 40 bytes wide on a 64 bit system.
+ * I can make this work in Fortran using: integer(1), dimension(40),
+ * but, this is the cleanest and most streamline example.
+ * You only need the type(c_ptr) with this style.
+ */
+
+/**
  * Create a mutex pointer.
  */
 pthread_mutex_t *for_p_thread_create_mutex()
