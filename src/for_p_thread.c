@@ -61,17 +61,7 @@ void for_p_thread_destroy_mutex(pthread_mutex_t *mutex)
  *
  * You can thank tavianator: https://www.reddit.com/r/C_Programming/comments/6zxnr1/comment/dmzuwt6
  */
-size_t for_p_thread_get_cpu_thread_count(bool leave_room_for_main)
+size_t for_p_thread_get_cpu_thread_count()
 {
-  size_t thread_count = (size_t)sysconf(_SC_NPROCESSORS_ONLN);
-  if (leave_room_for_main)
-  {
-    // In case you're running this on your AMD Thunderbird.
-    thread_count = thread_count - 1;
-    if (thread_count == 0)
-    {
-      thread_count = 1;
-    }
-  }
-  return thread_count;
+  return (size_t)sysconf(_SC_NPROCESSORS_ONLN);
 }

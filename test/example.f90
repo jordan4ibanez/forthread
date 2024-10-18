@@ -160,11 +160,8 @@ program thread_example
 
 
   !* The first step is very simple, you must initialize the library.
-  !* [leave_room_for_main], if .true. will have [CPU_THREADS - 1] workers.
-  !* This is specifically designed for games where you don't want the main thread
-  !* to become overburdened in the OS scheduler.
-  !* Since we are using pure calculations, use all available threads.
-  call thread_initialize(.false.)
+  !* We will assign this 1024 additional threads because we will be queueing up a lot of small threads.
+  call thread_initialize(1024)
 
   !* Initialize the output queue.
   output_queue = new_concurrent_fifo_queue(sizeof(thread_data_out_example(0)))

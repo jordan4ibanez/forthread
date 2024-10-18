@@ -71,15 +71,19 @@ contains
 
 
   !* Fire up the module.
-  !* If [leave_room_for_main] is .true. it will allocate [CPU_THREADS - 1] worker threads
-  !* into the thread pool state machine.
-  subroutine thread_initialize(leave_room_for_main)
+  !* If additional_threads is set, this will give you [CPU + X] available threads.
+  !* This is useful if you are using a lot of small threads.
+  subroutine thread_initialize(additional_threads)
     implicit none
 
-    logical, intent(in), value :: leave_room_for_main
+    integer(c_int), intent(in), value, optional :: additional_threads
     integer(c_int) :: i
 
-    CPU_THREADS = thread_get_cpu_thread_count(logical(leave_room_for_main, kind = c_bool))
+    CPU_THREADS = thread_get_cpu_thread_count()
+
+    if (present(additional_threads)) then
+      CPU_THREADS = CPU_THREADS + additional_threads
+    end if
 
     module_mutex = thread_create_mutex()
 
