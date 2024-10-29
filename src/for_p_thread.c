@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
+// #include <stdio.h>
 
 #ifdef __WIN32__
 
@@ -75,6 +76,10 @@ size_t for_p_thread_get_cpu_thread_count()
 
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
+
+  // If this ever runs into problems, here's a quick testing tool. :)
+  // printf("CPU THREADS: %i\n", sysinfo.dwNumberOfProcessors);
+
   return (size_t)sysinfo.dwNumberOfProcessors;
 
 #else
