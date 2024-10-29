@@ -4,6 +4,13 @@
 #include <assert.h>
 #include <inttypes.h>
 #include <stdlib.h>
+
+#ifdef __WIN32__
+
+#include <sysinfoapi.h>
+
+#endif
+
 // This one is for looking up error IDs.
 // #include <errno.h>
 // Go through to <errno-base.h>
@@ -63,5 +70,16 @@ void for_p_thread_destroy_mutex(pthread_mutex_t *mutex)
  */
 size_t for_p_thread_get_cpu_thread_count()
 {
+  // Windows is special.
+#ifdef __WIN32__
+
+  SYSTEM_INFO sysinfo;
+  GetSystemInfo(&sysinfo);
+  return (size_t)sysinfo.dwNumberOfProcessors;
+
+#else
+
   return (size_t)sysconf(_SC_NPROCESSORS_ONLN);
+
+#endif
 }
